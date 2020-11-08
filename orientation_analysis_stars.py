@@ -8,8 +8,12 @@ from pylab import *
 from main import *
 cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 
-path = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/Trieste/catalog/'
-path_plots = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/Trieste/plots/stars_plots/'
+# path = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/Trieste/catalog/'
+# path_plots = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/Trieste/plots/stars_plots/'
+
+path = '../catalog/'
+path_plots = '../plots/stars_plots/'
+
 gral  = np.loadtxt(path+'gral_091.dat').T
 lM = np.log10(gral[9])
 lMp = np.array((lM.tolist())*3)

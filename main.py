@@ -39,7 +39,7 @@ def plot_binned(X,Y,label,color='C3',style='',nbins=10):
 
 class Shape:
     
-    def __init__(self, ind=2, name_cat='dm_091.dat'):
+    def __init__(self, ind=2, name_cat='../catalog/dm_091.dat'):
         self.ind = ind
         self.name_cat = name_cat
         cat = np.loadtxt(name_cat).T
@@ -67,7 +67,7 @@ class DarkMatter(Shape):
     
     def __init__(self,nbins=10):
         
-        self.name_cat = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/Trieste/catalog/dm_091.dat'      
+        self.name_cat = '../catalog/dm_091.dat'      
         ind = 2
         Shape.__init__(self, ind=ind, name_cat=self.name_cat)
 
@@ -88,14 +88,14 @@ class Stars(Shape):
         elif radio == 200:
             ind = 2+15*5
             
-        self.name_cat = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/Trieste/catalog/stars_091.dat'      
+        self.name_cat = '../catalog/stars_091.dat'      
         Shape.__init__(self, ind=ind, name_cat=self.name_cat)
 
 class Galaxias(Shape):
 
     def __init__(self, radio, masa_cut= False):
         
-        self.name_cat = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/Trieste/catalog/glxs_091.dat'
+        self.name_cat = '../catalog/glxs_091.dat'
 
         if radio == 1000:
             ind = 2
