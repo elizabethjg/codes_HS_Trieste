@@ -41,26 +41,18 @@ def plot_dm(radio,mass,plot = False):
     
     
     
-    dm = DarkMatter(radio)
-    dm0 = DarkMatter(radio,False)
+
+    dm = DarkMatter(200)
     
-    Nh  = Galaxias(200).N
-    nh  = Galaxias(200).n
-    Nh_x = Galaxias(200,True).N
-    nh_x = Galaxias(200,True).n
+    stars = Stars(radio)
     
+    pT = np.round(pearsonr(lM,stars.T)[0],2)
+    pS = np.round(pearsonr(lM,stars.S)[0],2)
+    pq = np.round(pearsonr(lMp,stars.q)[0],2)
     
-    pT = np.round(pearsonr(lM,dm.T)[0],2)
-    pS = np.round(pearsonr(lM,dm.S)[0],2)
-    pq = np.round(pearsonr(lMp,dm.q)[0],2)
-    
-    mT = np.round(np.mean(dm.T-dm0.T),2)
-    mS = np.round(np.mean(dm.S-dm0.S),2)
-    mq = np.round(np.mean(dm.q-dm0.q),2)
-    
-    sT = np.round(np.std(dm.T-dm0.T),2)
-    sS = np.round(np.std(dm.S-dm0.S),2)
-    sq = np.round(np.std(dm.q-dm0.q),2)
+    pT_dM = np.round(pearsonr(dm.T,stars.T)[0],2)
+    pS_dM = np.round(pearsonr(dm.S,stars.S)[0],2)
+    pq_dM = np.round(pearsonr(dm.q,stars.q)[0],2)
     
     
     # print('DM within R'+str(radio)+' M'+lab)
@@ -75,88 +67,42 @@ def plot_dm(radio,mass,plot = False):
     
     if plot: 
 
-        path_plots = '../plots/dm_plots/R'+str(radio)+'/'
+        path_plots = '../plots/stars_plots/R'+str(radio)+'/'
         
         os.system('mkdir '+path_plots)
 
-    
+
         plt.figure()
-        # plt.hist(dm.T-dm0.T,np.linspace(-0.2,0.2,25),histtype='step',color='C1')
-        plt.hist((dm.T-dm0.T),np.linspace(-0.2,0.2,25),histtype='step',color='C0')
-        plt.xlabel('$T - T0$')
-        plt.ylabel('$N$')
-        plt.savefig(path_plots+'difT_dist_'+str(radio)+'.png')
-        
-        plt.figure()
-        # plt.hist(dm.S-dm0.S,np.linspace(-0.2,0.2,25),histtype='step',color='C1')
-        plt.hist((dm.S-dm0.S),np.linspace(-0.2,0.2,25),histtype='step',color='C0')
-        plt.xlabel('$S - S0$')
-        plt.ylabel('$N$')
-        plt.savefig(path_plots+'difS_dist_'+str(radio)+'.png')
-        
-        plt.figure()
-        plt.hist((dm.q-dm0.q),np.linspace(-0.2,0.2,25),histtype='step',color='C0')
-        plt.xlabel('$q - q0$')
-        plt.ylabel('$N$')
-        plt.savefig(path_plots+'difq_dist_'+str(radio)+'.png')
-        
-        
-        plt.figure()
-        plt.plot(Nh,dm.T-dm0.T,'.')
-        plt.plot(Nh_x,dm.T-dm0.T,'.')
-        plt.plot([1,Nh.max()+1],[0,0],'C7--')
-        plt.ylabel('$T - T0$')
-        plt.xlabel('$N_{GAL}$')
-        plt.savefig(path_plots+'NdifT_'+str(radio)+'.png')
-        
-        plt.figure()
-        plt.plot(Nh,dm.S-dm0.S,'.')
-        plt.plot(Nh_x,dm.S-dm0.S,'.')
-        plt.plot([1,Nh.max()+1],[0,0],'C7--')
-        plt.ylabel('$S - S0$')
-        plt.xlabel('$N_{GAL}$')
-        plt.savefig(path_plots+'NdifS_'+str(radio)+'.png')
-        
-        plt.figure()
-        plt.plot(nh,dm.q-dm0.q,'.')
-        plt.plot(nh_x,dm.q-dm0.q,'.')
-        plt.plot([1,nh.max()+1],[0,0],'C7--')
-        plt.ylabel('$q - q0$')
-        plt.xlabel('$N_{GAL}$')
-        plt.savefig(path_plots+'Ndifq_'+str(radio)+'.png')
-        
-        
-        plt.figure()
-        plt.plot(lM,dm.S,'C7.')
+        plt.plot(lM,stars.S,'C7.')
         plot_binned(lM,dm.S,'Dark matter','k',nbins=5)
-        plt.plot(lM,dm0.S,'C7x')
-        plot_binned(lM,dm0.S,'Dark matter','C7',nbins=5)
+        plt.plot(lM,dm.S,'C0x')
+        plot_binned(lM,stars.S,'stars','C0',nbins=5)
         plt.ylim([0,1])
         plt.xlabel('$\log M_{'+lab+'}$')
         plt.ylabel('$S$')
-        plt.savefig(path_plots+'S_DM_'+str(radio)+'_'+lab+'.png')
+        plt.savefig(path_plots+'S_stars_'+str(radio)+'_'+lab+'.png')
         
         plt.figure()
-        plt.plot(lM,dm.T,'C7.')
+        plt.plot(lM,stars.T,'C7.')
         plot_binned(lM,dm.T,'Dark matter','k',nbins=5)
-        plt.plot(lM,dm0.T,'C7x')
-        plot_binned(lM,dm0.T,'Dark matter','C7',nbins=5)
+        plt.plot(lM,dm.T,'C0x')
+        plot_binned(lM,stars.T,'stars','C0',nbins=5)
         plt.ylim([0,1])
         plt.xlabel('$\log M_{'+lab+'}$')
         plt.ylabel('$T$')
-        plt.savefig(path_plots+'T_DM_'+str(radio)+'_'+lab+'.png')
+        plt.savefig(path_plots+'T_stars_'+str(radio)+'_'+lab+'.png')
         
         plt.figure()
-        plt.plot(lMp,dm.q,'C7.')
+        plt.plot(lMp,stars.q,'C7.')
         plot_binned(lMp,dm.q,'Dark matter','k',nbins=5)
-        plt.plot(lMp,dm0.q,'C7x')
-        plot_binned(lMp,dm0.q,'Dark matter','C7',nbins=5)
+        plt.plot(lMp,dm.q,'C0x')
+        plot_binned(lMp,stars.q,'stars','C0',nbins=5)
         plt.ylim([0,1])
         plt.xlabel('$\log M_{'+lab+'}$')
         plt.ylabel('$q$')
-        plt.savefig(path_plots+'q_DM_'+str(radio)+'_'+lab+'.png')
+        plt.savefig(path_plots+'q_stars_'+str(radio)+'_'+lab+'.png')
         
-    return pT, pS, pq, mT, mS, mq, sT, sS, sq
+    return pT, pS, pq, pT_dM, pS_dM, pq_dM
 
 
 options = [30,50,100,1000,500,200]
@@ -172,15 +118,12 @@ PT = np.array([])
 PS = np.array([])
 Pq = np.array([])
 
-MT = np.array([])
-MS = np.array([])
-Mq = np.array([])
+PT_dM = np.array([])
+PS_dM = np.array([])
+Pq_dM = np.array([])
 
-ST = np.array([])
-SS = np.array([])
-Sq = np.array([])
 
-indicator = 'gap'
+indicator = 'DV'
 
 off   = gral[13]
 off2D = np.concatenate((gral[14],gral[15],gral[16]))
@@ -208,7 +151,7 @@ mnew2D = mgap2D
 
 for j in order:
     for i in order:
-        pT, pS, pq, mT, mS, mq, sT, sS, sq = plot_dm(options[order[j]],options[order[i]])
+        pT, pS, pq, pT_dM, pS_dM, pq_dM = plot_dm(options[order[j]],options[order[i]],True)
     
         R = np.append(R,order[j])
         M = np.append(M,order[i])
@@ -217,44 +160,43 @@ for j in order:
         PS = np.append(PS,pS)
         Pq = np.append(Pq,pq)
 
-        MT = np.append(MT,mT)
-        MS = np.append(MS,mS)
-        Mq = np.append(Mq,mq)
-
-        ST = np.append(ST,sT)
-        SS = np.append(SS,sS)
-        Sq = np.append(Sq,sq)
+        PT_dM = np.append(PT_dM,pT_dM)
+        PS_dM = np.append(PS_dM,pS_dM)
+        Pq_dM = np.append(Pq_dM,pq_dM)
 
 
-path_plots = '../plots/news/DM/'
+
+path_plots = '../plots/news/stars/'
+
+# CORRELATION WITH MASS
         
 plt.figure()
 plt.scatter(R,PT,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_T')
-plt.savefig(path_plots+'pT_DM_radio.png')
+plt.savefig(path_plots+'pT_stars_radio.png')
 
 plt.figure()
 plt.scatter(M,PT,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_T')
-plt.savefig(path_plots+'pT_DM_mass.png')
+plt.savefig(path_plots+'pT_stars_mass.png')
 
 plt.figure()
 plt.scatter(R,PS,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_S')
-plt.savefig(path_plots+'pS_DM_radio.png')
+plt.savefig(path_plots+'pS_stars_radio.png')
 
 plt.figure()
 plt.scatter(M,PS,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_S')
-plt.savefig(path_plots+'pS_DM_mass.png')
+plt.savefig(path_plots+'pS_stars_mass.png')
 
 
 plt.figure()
@@ -262,38 +204,85 @@ plt.scatter(R,Pq,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_q')
-plt.savefig(path_plots+'pS_DM_radio.png')
+plt.savefig(path_plots+'pS_stars_radio.png')
 
 plt.figure()
 plt.scatter(M,Pq,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_q')
-plt.savefig(path_plots+'pq_DM_mass.png')
+plt.savefig(path_plots+'pq_stars_mass.png')
 
 
-# WITH SUBHALOS
+# CORRELATION WITH DM
+        
+plt.figure()
+plt.scatter(R,PT_dM,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_T')
+plt.savefig(path_plots+'pT_dM_radio.png')
 
-dm30   = DarkMatter(30)
-dm50   = DarkMatter(50)
-dm100  = DarkMatter(100)
+plt.figure()
+plt.scatter(M,PT_dM,c=R)
+plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
+plt.xlabel('M')
+plt.ylabel('p_T')
+plt.savefig(path_plots+'pT_dM_mass.png')
+
+plt.figure()
+plt.scatter(R,PS_dM,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_S')
+plt.savefig(path_plots+'pS_dM_radio.png')
+
+plt.figure()
+plt.scatter(M,PS_dM,c=R)
+plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
+plt.xlabel('M')
+plt.ylabel('p_S')
+plt.savefig(path_plots+'pS_dM_mass.png')
+
+plt.figure()
+plt.scatter(R,Pq_dM,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_q')
+plt.savefig(path_plots+'pS_dM_radio.png')
+
+plt.figure()
+plt.scatter(M,Pq_dM,c=R)
+plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
+plt.xlabel('M')
+plt.ylabel('p_q')
+plt.savefig(path_plots+'pq_dM_mass.png')
+
+
+# WITH RADIUS
+
 dm200  = DarkMatter(200)
-dm500  = DarkMatter(500)
-dm1000 = DarkMatter(1000)
 
-ct30_3D  , t30_3D     = cosangle(dm200.a3D,dm30.a3D) 
-ct50_3D  , t50_3D     = cosangle(dm200.a3D,dm50.a3D)  
-ct100_3D , t100_3D    = cosangle(dm200.a3D,dm100.a3D) 
-ct200_3D , t200_3D    = cosangle(dm200.a3D,dm200.a3D) 
-ct500_3D , t500_3D    = cosangle(dm200.a3D,dm500.a3D)
-ct1000_3D, t1000_3D   = cosangle(dm200.a3D,dm1000.a3D)
+s30   = Stars(30)
+s50   = Stars(50)
+s100  = Stars(100)
+s500  = Stars(500)
+s200  = Stars(200)
+s1000 = Stars(1000)
 
-ct30_2D  , t30_2D     = cosangle(dm200.a2D,dm30.a2D) 
-ct50_2D  , t50_2D     = cosangle(dm200.a2D,dm50.a2D)  
-ct100_2D , t100_2D    = cosangle(dm200.a2D,dm100.a2D) 
-ct200_2D , t200_2D    = cosangle(dm200.a2D,dm200.a2D) 
-ct500_2D , t500_2D    = cosangle(dm200.a2D,dm500.a2D)
-ct1000_2D, t1000_2D   = cosangle(dm200.a2D,dm1000.a2D)
+ct30_3D  , t30_3D     = cosangle(dm200.a3D,s30.a3D) 
+ct50_3D  , t50_3D     = cosangle(dm200.a3D,s50.a3D)  
+ct100_3D , t100_3D    = cosangle(dm200.a3D,s100.a3D) 
+ct200_3D , t200_3D    = cosangle(dm200.a3D,s200.a3D) 
+ct500_3D , t500_3D    = cosangle(dm200.a3D,s500.a3D)
+ct1000_3D, t1000_3D   = cosangle(dm200.a3D,s1000.a3D)
+
+ct30_2D  , t30_2D     = cosangle(dm200.a2D,s30.a2D) 
+ct50_2D  , t50_2D     = cosangle(dm200.a2D,s50.a2D)  
+ct100_2D , t100_2D    = cosangle(dm200.a2D,s100.a2D) 
+ct200_2D , t200_2D    = cosangle(dm200.a2D,s200.a2D) 
+ct500_2D , t500_2D    = cosangle(dm200.a2D,s500.a2D)
+ct1000_2D, t1000_2D   = cosangle(dm200.a2D,s1000.a2D)
 
 t3D = np.vstack((t30_3D,t50_3D,t100_3D,t1000_3D,t500_3D,t200_3D)).T
 t2D = np.vstack((t30_2D,t50_2D,t100_2D,t1000_2D,t500_2D,t200_2D)).T
@@ -374,3 +363,4 @@ plt.xticks(np.median(np.log10(R),axis=0),['30kpc','50kpc','0.1R500','R1000','R50
 plt.ylabel(r'$\theta_{2D}$')
 plt.axis([np.log10(30),np.log10(2000),0.,50.])
 plt.savefig(path_plots+'t2D_Rp'+indicator+'.png')
+

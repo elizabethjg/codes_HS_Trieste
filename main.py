@@ -31,10 +31,20 @@ def binned(x,y,nbins=10):
     y_b     = bined.statistic
     bined = stats.binned_statistic(x,y,statistic='std', bins=nbins)
     sy_b     = bined.statistic/np.sqrt(ninbin(bined.binnumber))
-    return x_b,y_b,sy_b
+    dig   = np.digitize(x,bined.bin_edges)
+    mz    = np.ones(len(x))
+    for j in range(nbins):
+        mbin = dig == (j+1)
+        mz[mbin] = y[mbin] >= y_b[j]   
+    mz = mz.astype(bool)
+    return x_b,y_b,sy_b,mz
+    
+def select_medians(x,y,z,nbins=10):
+    bined = stats.binned_statistic(x,y,statistic='median', bins=nbins)
+        
 
 def plot_binned(X,Y,label,color='C3',style='',nbins=10):
-    x,y,s = binned(X,Y,nbins)
+    x,y,s,m = binned(X,Y,nbins)
     plt.errorbar(x,y,yerr=s,fmt=style,ecolor=color,color=color,label=label)
 
 class Shape:
@@ -65,10 +75,25 @@ class Shape:
     
 class DarkMatter(Shape):
     
-    def __init__(self,nbins=10):
+    def __init__(self, radio,subhalos=True):
         
         self.name_cat = '../catalog/dm_091.dat'      
-        ind = 2
+
+        if radio == 30:
+            ind = 2
+        elif radio == 50:
+            ind = 2 + (15*2)
+        elif radio == 100:
+            ind = 2 + (15*4)
+        elif radio == 1000:
+            ind = 2 + (15*6)
+        elif radio == 500:
+            ind = 2 + (15*8)
+        elif radio == 200:
+            ind = 2 + (15*10)
+        
+        if not subhalos:
+            ind = ind + 15
         Shape.__init__(self, ind=ind, name_cat=self.name_cat)
 
 class Stars(Shape):
