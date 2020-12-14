@@ -180,7 +180,7 @@ ST = np.array([])
 SS = np.array([])
 Sq = np.array([])
 
-indicator = 'gap'
+indicator = 'DV'
 
 off   = gral[13]
 off2D = np.concatenate((gral[14],gral[15],gral[16]))
@@ -374,3 +374,106 @@ plt.xticks(np.median(np.log10(R),axis=0),['30kpc','50kpc','0.1R500','R1000','R50
 plt.ylabel(r'$\theta_{2D}$')
 plt.axis([np.log10(30),np.log10(2000),0.,50.])
 plt.savefig(path_plots+'t2D_Rp'+indicator+'.png')
+
+# WITHOUT SUBHALOS
+
+dm30   = DarkMatter(30,False)
+dm50   = DarkMatter(50,False)
+dm100  = DarkMatter(100,False)
+dm200  = DarkMatter(200,False)
+dm500  = DarkMatter(500,False)
+dm1000 = DarkMatter(1000,False)
+
+ct30_3D  , t30_3D     = cosangle(dm200.a3D,dm30.a3D) 
+ct50_3D  , t50_3D     = cosangle(dm200.a3D,dm50.a3D)  
+ct100_3D , t100_3D    = cosangle(dm200.a3D,dm100.a3D) 
+ct200_3D , t200_3D    = cosangle(dm200.a3D,dm200.a3D) 
+ct500_3D , t500_3D    = cosangle(dm200.a3D,dm500.a3D)
+ct1000_3D, t1000_3D   = cosangle(dm200.a3D,dm1000.a3D)
+
+ct30_2D  , t30_2D     = cosangle(dm200.a2D,dm30.a2D) 
+ct50_2D  , t50_2D     = cosangle(dm200.a2D,dm50.a2D)  
+ct100_2D , t100_2D    = cosangle(dm200.a2D,dm100.a2D) 
+ct200_2D , t200_2D    = cosangle(dm200.a2D,dm200.a2D) 
+ct500_2D , t500_2D    = cosangle(dm200.a2D,dm500.a2D)
+ct1000_2D, t1000_2D   = cosangle(dm200.a2D,dm1000.a2D)
+
+t3D = np.vstack((t30_3D,t50_3D,t100_3D,t1000_3D,t500_3D,t200_3D)).T
+t2D = np.vstack((t30_2D,t50_2D,t100_2D,t1000_2D,t500_2D,t200_2D)).T
+
+S = np.vstack((dm30.S,dm50.S,dm100.S,dm1000.S,dm500.S,dm200.S)).T
+T = np.vstack((dm30.T,dm50.T,dm100.T,dm1000.T,dm500.T,dm200.T)).T
+q = np.vstack((dm30.q,dm50.q,dm100.q,dm1000.q,dm500.q,dm200.q)).T
+
+
+# ANGLES AND RADIUS
+
+R1000 = gral[4]
+R500  = gral[5]
+R200  = gral[6]
+R30   = np.ones(len(R200))*30.
+R50   = np.ones(len(R200))*50.
+R1    = 0.1*R500
+R = np.vstack((R30,R50,R1,R1000,R500,R200)).T
+Rp = np.array((R.tolist())*3)
+
+
+plt.figure()    
+plt.plot(np.median(np.log10(R),axis=0),np.median(S,axis=0),'k')
+plt.fill_between(np.median(np.log10(R),axis=0),np.median(S,axis=0)+np.std(S,axis=0),np.median(S,axis=0)-np.std(S,axis=0),color = 'k',alpha=0.1)
+plt.plot(np.median(np.log10(R[mnew]),axis=0),np.median(S[mnew],axis=0),'C0')
+plt.fill_between(np.median(np.log10(R[mnew]),axis=0),np.median(S[mnew],axis=0)+np.std(S[mnew],axis=0),np.median(S[mnew],axis=0)-np.std(S[mnew],axis=0),color = 'C0',alpha=0.1)
+plt.plot(np.median(np.log10(R[mold]),axis=0),np.median(S[mold],axis=0),'C3')
+plt.fill_between(np.median(np.log10(R[mold]),axis=0),np.median(S[mold],axis=0)+np.std(S[mold],axis=0),np.median(S[mold],axis=0)-np.std(S[mold],axis=0),color = 'C3',alpha=0.1)
+plt.ylabel('$S$')
+plt.xticks(np.median(np.log10(R),axis=0),['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.axis([np.log10(30),np.log10(2000),0.4,0.9])
+plt.savefig(path_plots+'S_R'+indicator+'_woSH.png')
+
+plt.figure()
+plt.plot(np.median(np.log10(R),axis=0),np.median(T,axis=0),'k')
+plt.fill_between(np.median(np.log10(R),axis=0),np.median(T,axis=0)+np.std(T,axis=0),np.median(T,axis=0)-np.std(T,axis=0),color = 'k',alpha=0.1)
+plt.plot(np.median(np.log10(R[mnew]),axis=0),np.median(T[mnew],axis=0),'C0')
+plt.fill_between(np.median(np.log10(R[mnew]),axis=0),np.median(T[mnew],axis=0)+np.std(T[mnew],axis=0),np.median(T[mnew],axis=0)-np.std(T[mnew],axis=0),color = 'C0',alpha=0.1)
+plt.plot(np.median(np.log10(R[mold]),axis=0),np.median(T[mold],axis=0),'C3')
+plt.fill_between(np.median(np.log10(R[mold]),axis=0),np.median(T[mold],axis=0)+np.std(T[mold],axis=0),np.median(T[mold],axis=0)-np.std(T[mold],axis=0),color = 'C3',alpha=0.1)
+plt.xticks(np.median(np.log10(R),axis=0),['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.ylabel('$T$')
+plt.axis([np.log10(30),np.log10(2000),0.4,0.9])
+plt.savefig(path_plots+'T_R'+indicator+'_woSH.png')
+
+plt.figure()
+plt.plot(np.median(np.log10(Rp),axis=0),np.median(q,axis=0),'k')
+plt.fill_between(np.median(np.log10(Rp),axis=0),np.median(q,axis=0)+np.std(q,axis=0),np.median(q,axis=0)-np.std(q,axis=0),color = 'k',alpha=0.1)
+plt.plot(np.median(np.log10(Rp[mnew2D]),axis=0),np.median(q[mnew2D],axis=0),'C0')
+plt.fill_between(np.median(np.log10(Rp[mnew2D]),axis=0),np.median(q[mnew2D],axis=0)+np.std(q[mnew2D],axis=0),np.median(q[mnew2D],axis=0)-np.std(q[mnew2D],axis=0),color = 'C0',alpha=0.1)
+plt.plot(np.median(np.log10(Rp[mold2D]),axis=0),np.median(q[mold2D],axis=0),'C3')
+plt.fill_between(np.median(np.log10(Rp[mold2D]),axis=0),np.median(q[mold2D],axis=0)+np.std(q[mold2D],axis=0),np.median(q[mold2D],axis=0)-np.std(q[mold2D],axis=0),color = 'C3',alpha=0.1)
+plt.xticks(np.median(np.log10(R),axis=0),['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.ylabel('$q$')
+plt.axis([np.log10(30),np.log10(2000),0.4,0.9])
+plt.savefig(path_plots+'q_Rp'+indicator+'_woSH.png')
+
+plt.figure()
+plt.plot(np.median(np.log10(R),axis=0),np.median(t3D,axis=0),'k')
+plt.fill_between(np.median(np.log10(R),axis=0),np.median(t3D,axis=0)+np.std(t3D,axis=0),np.median(t3D,axis=0)-np.std(t3D,axis=0),color = 'k',alpha=0.1)
+plt.plot(np.median(np.log10(R[mnew]),axis=0),np.median(t3D[mnew],axis=0),'C0')
+plt.fill_between(np.median(np.log10(R[mnew]),axis=0),np.median(t3D[mnew],axis=0)+np.std(t3D[mnew],axis=0),np.median(t3D[mnew],axis=0)-np.std(t3D[mnew],axis=0),color = 'C0',alpha=0.1)
+plt.plot(np.median(np.log10(R[mold]),axis=0),np.median(t3D[mold],axis=0),'C3')
+plt.fill_between(np.median(np.log10(R[mold]),axis=0),np.median(t3D[mold],axis=0)+np.std(t3D[mold],axis=0),np.median(t3D[mold],axis=0)-np.std(t3D[mold],axis=0),color = 'C3',alpha=0.1)
+plt.xticks(np.median(np.log10(R),axis=0),['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.ylabel(r'$\theta$')
+plt.axis([np.log10(30),np.log10(2000),0.,50.])
+plt.savefig(path_plots+'t3D_R'+indicator+'_woSH.png')
+
+plt.figure()
+plt.plot(np.median(np.log10(Rp),axis=0),np.median(t2D,axis=0),'k')
+plt.fill_between(np.median(np.log10(Rp),axis=0),np.median(t2D,axis=0)+np.std(t2D,axis=0),np.median(t2D,axis=0)-np.std(t2D,axis=0),color = 'k',alpha=0.1)
+plt.plot(np.median(np.log10(Rp[mnew2D]),axis=0),np.median(t2D[mnew2D],axis=0),'C0')
+plt.fill_between(np.median(np.log10(Rp[mnew2D]),axis=0),np.median(t2D[mnew2D],axis=0)+np.std(t2D[mnew2D],axis=0),np.median(t2D[mnew2D],axis=0)-np.std(t2D[mnew2D],axis=0),color = 'C0',alpha=0.1)
+plt.plot(np.median(np.log10(Rp[mold2D]),axis=0),np.median(t2D[mold2D],axis=0),'C3')
+plt.fill_between(np.median(np.log10(Rp[mold2D]),axis=0),np.median(t2D[mold2D],axis=0)+np.std(t2D[mold2D],axis=0),np.median(t2D[mold2D],axis=0)-np.std(t2D[mold2D],axis=0),color = 'C3',alpha=0.1)
+plt.xticks(np.median(np.log10(R),axis=0),['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.ylabel(r'$\theta_{2D}$')
+plt.axis([np.log10(30),np.log10(2000),0.,50.])
+plt.savefig(path_plots+'t2D_Rp'+indicator+'_woSH.png')
