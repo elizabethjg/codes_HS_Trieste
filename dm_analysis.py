@@ -54,13 +54,13 @@ def plot_dm(radio,mass,plot = False):
     pS = np.round(pearsonr(lM,dm.S)[0],2)
     pq = np.round(pearsonr(lMp,dm.q)[0],2)
     
-    mT = np.round(np.mean(dm.T-dm0.T),2)
-    mS = np.round(np.mean(dm.S-dm0.S),2)
-    mq = np.round(np.mean(dm.q-dm0.q),2)
+    mT = np.round(np.mean(dm.T-dm0.T),3)
+    mS = np.round(np.mean(dm.S-dm0.S),3)
+    mq = np.round(np.mean(dm.q-dm0.q),3)
     
-    sT = np.round(np.std(dm.T-dm0.T),2)
-    sS = np.round(np.std(dm.S-dm0.S),2)
-    sq = np.round(np.std(dm.q-dm0.q),2)
+    sT = np.round(np.std(dm.T-dm0.T),3)
+    sS = np.round(np.std(dm.S-dm0.S),3)
+    sq = np.round(np.std(dm.q-dm0.q),3)
     
     
     # print('DM within R'+str(radio)+' M'+lab)
@@ -162,7 +162,7 @@ def plot_dm(radio,mass,plot = False):
 options = [30,50,100,1000,500,200]
 order   = np.arange(len(options))
 
-lM = np.log10(gral[10])
+lM = np.log10(gral[9])
 lMp = np.array((lM.tolist())*3)
 
 M = np.array([])
@@ -180,7 +180,7 @@ ST = np.array([])
 SS = np.array([])
 Sq = np.array([])
 
-indicator = 'DV'
+indicator = 'gap'
 
 off   = gral[13]
 off2D = np.concatenate((gral[14],gral[15],gral[16]))
@@ -270,6 +270,50 @@ plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_q')
 plt.savefig(path_plots+'pq_DM_mass.png')
+
+#--------------------
+plt.figure()
+plt.scatter(R,MT,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_T')
+plt.savefig(path_plots+'mT_DM_radio.png')
+
+plt.figure()
+plt.scatter(R,MS,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_S')
+plt.savefig(path_plots+'mS_DM_radio.png')
+
+plt.figure()
+plt.scatter(R,Mq,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_q')
+plt.savefig(path_plots+'mq_DM_radio.png')
+
+#--------------------
+plt.figure()
+plt.scatter(R,ST,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_T')
+plt.savefig(path_plots+'sT_DM_radio.png')
+
+plt.figure()
+plt.scatter(R,SS,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_S')
+plt.savefig(path_plots+'sS_DM_radio.png')
+
+plt.figure()
+plt.scatter(R,Sq,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_q')
+plt.savefig(path_plots+'sq_DM_radio.png')
 
 
 # WITH SUBHALOS

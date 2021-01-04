@@ -43,6 +43,7 @@ def plot_dm(radio,mass,plot = False):
     
 
     dm = DarkMatter(200)
+    dmr = DarkMatter(radio)
     
     stars = Stars(radio)
     
@@ -53,6 +54,10 @@ def plot_dm(radio,mass,plot = False):
     pT_dM = np.round(pearsonr(dm.T,stars.T)[0],2)
     pS_dM = np.round(pearsonr(dm.S,stars.S)[0],2)
     pq_dM = np.round(pearsonr(dm.q,stars.q)[0],2)
+
+    pT_dMr = np.round(pearsonr(dmr.T,stars.T)[0],2)
+    pS_dMr = np.round(pearsonr(dmr.S,stars.S)[0],2)
+    pq_dMr = np.round(pearsonr(dmr.q,stars.q)[0],2)
     
     
     # print('DM within R'+str(radio)+' M'+lab)
@@ -102,13 +107,13 @@ def plot_dm(radio,mass,plot = False):
         plt.ylabel('$q$')
         plt.savefig(path_plots+'q_stars_'+str(radio)+'_'+lab+'.png')
         
-    return pT, pS, pq, pT_dM, pS_dM, pq_dM
+    return pT, pS, pq, pT_dM, pS_dM, pq_dM, pT_dMr, pS_dMr, pq_dMr
 
 
 options = [30,50,100,1000,500,200]
 order   = np.arange(len(options))
 
-lM = np.log10(gral[10])
+lM = np.log10(gral[9])
 lMp = np.array((lM.tolist())*3)
 
 M = np.array([])
@@ -121,6 +126,10 @@ Pq = np.array([])
 PT_dM = np.array([])
 PS_dM = np.array([])
 Pq_dM = np.array([])
+
+PT_dMr = np.array([])
+PS_dMr = np.array([])
+Pq_dMr = np.array([])
 
 
 indicator = 'DV'
@@ -151,7 +160,7 @@ mnew2D = mgap2D
 
 for j in order:
     for i in order:
-        pT, pS, pq, pT_dM, pS_dM, pq_dM = plot_dm(options[order[j]],options[order[i]],True)
+        pT, pS, pq, pT_dM, pS_dM, pq_dM, pT_dMr, pS_dMr, pq_dMr = plot_dm(options[order[j]],options[order[i]],True)
     
         R = np.append(R,order[j])
         M = np.append(M,order[i])
@@ -164,6 +173,9 @@ for j in order:
         PS_dM = np.append(PS_dM,pS_dM)
         Pq_dM = np.append(Pq_dM,pq_dM)
 
+        PT_dMr = np.append(PT_dMr,pT_dMr)
+        PS_dMr = np.append(PS_dMr,pS_dMr)
+        Pq_dMr = np.append(Pq_dMr,pq_dMr)
 
 
 path_plots = '../plots/news/stars/'
@@ -175,28 +187,28 @@ plt.scatter(R,PT,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_T')
-plt.savefig(path_plots+'pT_stars_radio.png')
+plt.savefig(path_plots+'pT_mass_radio.png')
 
 plt.figure()
 plt.scatter(M,PT,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_T')
-plt.savefig(path_plots+'pT_stars_mass.png')
+plt.savefig(path_plots+'pT_mass_mass.png')
 
 plt.figure()
 plt.scatter(R,PS,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_S')
-plt.savefig(path_plots+'pS_stars_radio.png')
+plt.savefig(path_plots+'pS_mass_radio.png')
 
 plt.figure()
 plt.scatter(M,PS,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_S')
-plt.savefig(path_plots+'pS_stars_mass.png')
+plt.savefig(path_plots+'pS_mass_mass.png')
 
 
 plt.figure()
@@ -204,17 +216,61 @@ plt.scatter(R,Pq,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_q')
-plt.savefig(path_plots+'pS_stars_radio.png')
+plt.savefig(path_plots+'pS_mass_radio.png')
 
 plt.figure()
 plt.scatter(M,Pq,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_q')
-plt.savefig(path_plots+'pq_stars_mass.png')
+plt.savefig(path_plots+'pq_mass_mass.png')
 
 
 # CORRELATION WITH DM
+        
+plt.figure()
+plt.scatter(R,PT_dMr,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_T')
+plt.savefig(path_plots+'pT_dM_radio.png')
+
+plt.figure()
+plt.scatter(M,PT_dMr,c=R)
+plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
+plt.xlabel('M')
+plt.ylabel('p_T')
+plt.savefig(path_plots+'pT_dM_mass.png')
+
+plt.figure()
+plt.scatter(R,PS_dMr,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_S')
+plt.savefig(path_plots+'pS_dM_radio.png')
+
+plt.figure()
+plt.scatter(M,PS_dMr,c=R)
+plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
+plt.xlabel('M')
+plt.ylabel('p_S')
+plt.savefig(path_plots+'pS_dM_mass.png')
+
+plt.figure()
+plt.scatter(R,Pq_dMr,c=M)
+plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
+plt.xlabel('R')
+plt.ylabel('p_q')
+plt.savefig(path_plots+'pS_dM_radio.png')
+
+plt.figure()
+plt.scatter(M,Pq_dMr,c=R)
+plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
+plt.xlabel('M')
+plt.ylabel('p_q')
+plt.savefig(path_plots+'pq_dM_mass.png')
+
+# CORRELATION WITH DM200
         
 plt.figure()
 plt.scatter(R,PT_dM,c=M)
@@ -224,35 +280,35 @@ plt.ylabel('p_T')
 plt.savefig(path_plots+'pT_dM_radio.png')
 
 plt.figure()
-plt.scatter(M,PT_dM,c=R)
+plt.scatter(M,PT_dMr,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_T')
 plt.savefig(path_plots+'pT_dM_mass.png')
 
 plt.figure()
-plt.scatter(R,PS_dM,c=M)
+plt.scatter(R,PS_dMr,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_S')
 plt.savefig(path_plots+'pS_dM_radio.png')
 
 plt.figure()
-plt.scatter(M,PS_dM,c=R)
+plt.scatter(M,PS_dMr,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_S')
 plt.savefig(path_plots+'pS_dM_mass.png')
 
 plt.figure()
-plt.scatter(R,Pq_dM,c=M)
+plt.scatter(R,Pq_dMr,c=M)
 plt.xticks(order,['30kpc','50kpc','0.1R500','R1000','R500','R200'])
 plt.xlabel('R')
 plt.ylabel('p_q')
 plt.savefig(path_plots+'pS_dM_radio.png')
 
 plt.figure()
-plt.scatter(M,Pq_dM,c=R)
+plt.scatter(M,Pq_dMr,c=R)
 plt.xticks(order,['M30','M50','M0.1R500','M1000','M500','M200'])
 plt.xlabel('M')
 plt.ylabel('p_q')

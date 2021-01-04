@@ -3,6 +3,8 @@ import numpy as np
 from scipy import stats
 from pylab import *
 
+path = '../catalog/nuevosdats/'
+
 def ninbin(binnumber):
     
     N = np.array([])
@@ -49,7 +51,7 @@ def plot_binned(X,Y,label,color='C3',style='',nbins=10):
 
 class Shape:
     
-    def __init__(self, ind=2, name_cat='../catalog/dm_091.dat'):
+    def __init__(self, ind=2, name_cat=path+'dm_nounb_091.dat'):
         self.ind = ind
         self.name_cat = name_cat
         cat = np.loadtxt(name_cat).T
@@ -77,7 +79,7 @@ class DarkMatter(Shape):
     
     def __init__(self, radio,subhalos=True):
         
-        self.name_cat = '../catalog/dm_091.dat'      
+        self.name_cat = path+'dm_nounb_091.dat'      
 
         if radio == 30:
             ind = 2
@@ -113,7 +115,7 @@ class Stars(Shape):
         elif radio == 200:
             ind = 2+15*5
             
-        self.name_cat = '../catalog/stars_091.dat'      
+        self.name_cat = path+'stars_nounb_091.dat'      
         Shape.__init__(self, ind=ind, name_cat=self.name_cat)
 
 class Galaxias(Shape):
@@ -122,7 +124,7 @@ class Galaxias(Shape):
         
         if tipo == 'all':
         
-            self.name_cat = '../catalog/glxs_091.dat'
+            self.name_cat = path+'glxs_nounb_091.dat'
     
             if radio == 1000:
                 ind = 2
@@ -143,7 +145,7 @@ class Galaxias(Shape):
             ind = ind + 4
         
         else:
-            self.name_cat = '../catalog/glxs_hmr_091.dat'
+            self.name_cat = path+'glxs_nounb_hmr_091.dat'
             gal = np.loadtxt(self.name_cat).T
             ind = 2
             self.N  = gal[ind]
@@ -175,7 +177,7 @@ class CorrelR():
     
     def __init__(self,trazer1,trazer2):
     
-        gral  = np.loadtxt('../catalog/gral_091_2.dat').T
+        gral  = np.loadtxt(path+'gral_nounb_091.dat').T
         
         
         t1_200  = trazer1(radio=200)
@@ -354,7 +356,7 @@ class CorrelR():
 
 def newold(indicator = 'gap',gxs = False):
     
-    gral  = np.loadtxt('../catalog/gral_091_2.dat').T
+    gral  = np.loadtxt(path+'gral_nounb_091.dat').T
     
     lM = np.log10(gral[9])
     lMp = np.array((lM.tolist())*3)
