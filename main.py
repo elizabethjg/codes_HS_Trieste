@@ -3,6 +3,8 @@ import numpy as np
 from scipy import stats
 from pylab import *
 
+path = '../catalog/nuevosdats/'
+
 def ninbin(binnumber):
     
     N = np.array([])
@@ -15,7 +17,7 @@ def cosangle(a,b):
     costheta = np.array([])
 
     for j in range(len(a)):
-        cos = np.max([np.dot(-1.*a[j],b[j]),np.dot(a[j],b[j])])
+        cos = np.max(np.abs(np.dot(a[j],b[j])))
         costheta = np.append(costheta,cos)
     
     costheta = np.round(costheta,3)
@@ -46,10 +48,51 @@ def select_medians(x,y,z,nbins=10):
 def plot_binned(X,Y,label,color='C3',style='',nbins=10):
     x,y,s,m = binned(X,Y,nbins)
     plt.errorbar(x,y,yerr=s,fmt=style,ecolor=color,color=color,label=label)
+    
+
+def newold(indicator = 'gap',gxs = False):
+    
+    gral  = np.loadtxt(path+'gral_nounb_091.dat').T
+    
+    lM = np.log10(gral[9])
+    lMp = np.array((lM.tolist())*3)
+    
+    off   = gral[13]
+    off2D = np.concatenate((gral[14],gral[15],gral[16]))
+    DV    = gral[17]
+    DV2D  = np.concatenate((gral[18],gral[19],gral[20]))
+    gap  = gral[21]
+    gap2D = np.concatenate((gral[22],gral[23],gral[24]))
+    
+    if 'off' in indicator:
+        gap = off
+        gap2D = off2D
+    elif 'DV' in indicator:
+        gap = DV
+        gap2D = DV2D
+
+    mgap = binned(lM,gap)[-1]
+    mgap2D = binned(lMp,gap2D)[-1]
+        
+    mold = ~mgap
+    mold2D = ~mgap2D
+    
+    mnew = mgap
+    mnew2D = mgap2D
+    
+    if gxs:
+            mN = Galaxias(radio=1000).N > 9
+            mN2D = np.array((Galaxias(radio=1000).N.tolist())*3) > 9
+            mnew = mnew[mN]
+            mnew2D = mnew2D[mN2D]
+            mold = mold[mN]
+            mold2D = mold2D[mN2D] 
+    
+    return mnew,mold,mnew2D,mold2D
 
 class Shape:
     
-    def __init__(self, ind=2, name_cat='../catalog/dm_091.dat'):
+    def __init__(self, ind=2, name_cat=path+'dm_nounb_091.dat'):
         self.ind = ind
         self.name_cat = name_cat
         cat = np.loadtxt(name_cat).T
@@ -63,6 +106,7 @@ class Shape:
         
         self.T = (a**2 - b**2)/(a**2 - c**2)
         self.S = c/a
+        self.Q = b/a
         self.q = np.concatenate((qx,qy,qz))
         
         self.a3D = np.array([cat[ind+6],cat[ind+7],cat[ind+8]]).T
@@ -77,7 +121,7 @@ class DarkMatter(Shape):
     
     def __init__(self, radio,subhalos=True):
         
-        self.name_cat = '../catalog/dm_091.dat'      
+        self.name_cat = path+'dm_nounb_091.dat'      
 
         if radio == 30:
             ind = 2
@@ -113,7 +157,7 @@ class Stars(Shape):
         elif radio == 200:
             ind = 2+15*5
             
-        self.name_cat = '../catalog/stars_091.dat'      
+        self.name_cat = path+'stars_nounb_091.dat'      
         Shape.__init__(self, ind=ind, name_cat=self.name_cat)
 
 class Galaxias(Shape):
@@ -122,7 +166,7 @@ class Galaxias(Shape):
         
         if tipo == 'all':
         
-            self.name_cat = '../catalog/glxs_091.dat'
+            self.name_cat = path+'glxs_nounb_091.dat'
     
             if radio == 1000:
                 ind = 2
@@ -143,7 +187,7 @@ class Galaxias(Shape):
             ind = ind + 4
         
         else:
-            self.name_cat = '../catalog/glxs_hmr_091.dat'
+            self.name_cat = path+'glxs_nounb_hmr_091.dat'
             gal = np.loadtxt(self.name_cat).T
             ind = 2
             self.N  = gal[ind]
@@ -171,11 +215,75 @@ def Tenneti(lM,a):
     return param
     
 
+class Clusters:
+    
+    def __init__(self):
+
+        gral  = np.loadtxt(path+'gral_nounb_091.dat').T
+        
+        self.R1000 = gral[4]
+        self.R500  = gral[5]
+        self.R200  = gral[6]
+
+        self.lM1000 = np.log10(gral[7])
+        self.lM500  = np.log10(gral[8])
+        self.lM200  = np.log10(gral[9])
+        self.lM30   = np.log10(gral[10])
+        self.lM50   = np.log10(gral[11])
+        self.lM100  = np.log10(gral[12])
+
+        self.lM1000p = np.array((np.log10(gral[7]).tolist())*3)
+        self.lM500p  = np.array((np.log10(gral[8]).tolist())*3)
+        self.lM200p  = np.array((np.log10(gral[9]).tolist())*3)
+        self.lM30p   = np.array((np.log10(gral[10]).tolist())*3)
+        self.lM50p   = np.array((np.log10(gral[11]).tolist())*3)
+        self.lM100p  = np.array((np.log10(gral[12]).tolist())*3)
+
+
+        self.off  = gral[13]
+        self.offp = np.concatenate((gral[14],gral[15],gral[16]))
+        self.DV   = gral[17]
+        self.DVp  = np.concatenate((gral[18],gral[19],gral[20]))
+        self.gap  = gral[21]
+        self.gapp = np.concatenate((gral[22],gral[23],gral[24]))
+        
+        m_gap = newold('gap')
+        m_off = newold('off')
+        m_dv = newold('DV')
+        
+        self.mn_gap   = m_gap[0]
+        self.mo_gap   = m_gap[1]
+        self.mn2d_gap = m_gap[2]
+        self.mo2d_gap = m_gap[3]
+
+        self.mn_off   = m_off[0]
+        self.mo_off   = m_off[1]
+        self.mn2d_off = m_off[2]
+        self.mo2d_off = m_off[3]
+
+        self.mn_dv   = m_dv[0]
+        self.mo_dv   = m_dv[1]
+        self.mn2d_dv = m_dv[2]
+        self.mo2d_dv = m_dv[3]
+        
+        R30   = np.ones(gral.shape[1])*30.
+        R50   = np.ones(gral.shape[1])*50.
+        R100    = 0.1*gral[5]
+
+        
+        
+        self.Rs = np.vstack((R30/gral[6],R50/gral[6],R100/gral[6],gral[4]/gral[6],gral[5]/gral[6],np.ones(gral.shape[1]))).T
+        self.R  = np.vstack((R30,R50,R100,gral[4],gral[5],gral[6])).T
+        self.Rp = np.array((self.R.tolist())*3)
+        self.Rsp = np.array((self.Rs.tolist())*3)
+        
+        
+
 class CorrelR():
     
-    def __init__(self,trazer1,trazer2):
+    def __init__(self,trazer1,trazer2,m = [],m2d = []):
     
-        gral  = np.loadtxt('../catalog/gral_091_2.dat').T
+        gral  = np.loadtxt(path+'gral_nounb_091.dat').T
         
         
         t1_200  = trazer1(radio=200)
@@ -189,29 +297,23 @@ class CorrelR():
         t2_500  = trazer2(radio=500)
         t2_1000 = trazer2(radio=1000)
 
-
+        if not len(m):
+            m   = (np.ones(len(t1_30.S)).astype(bool))
+            m2d = (np.ones(len(t1_30.q)).astype(bool))
         
         try:
             t1_30   = trazer1(radio=30)
             t1_50   = trazer1(radio=50)
             t1_100  = trazer1(radio=100)
-            mN      = np.ones(len(t1_30.S)).astype(bool)
-            mN2D    = np.ones(len(t1_30.q)).astype(bool)
+            mN      = m
+            mN2D    = m2d
         except:
             t1_30   = t2_30
             t1_50   = t2_50
             t1_100  = t2_100
-            mN = t1_1000.N > 9
-            mN2D = np.array((t1_1000.N.tolist())*3) > 9
+            mN = (t1_1000.N > 9)*m
+            mN2D = (np.array((t1_1000.N.tolist())*3) > 9)*m2d
 
-        R1000 = gral[4][mN]
-        R500  = gral[5][mN]
-        R200  = gral[6][mN]
-        R30   = np.ones(len(R200))*30.
-        R50   = np.ones(len(R200))*50.
-        R1    = 0.1*R500
-        R = np.vstack((R30,R50,R1,R1000,R500,R200)).T
-        Rp = np.array((R.tolist())*3)
             
         dm   = DarkMatter(1000)
         dm200   = DarkMatter(200)
@@ -329,8 +431,6 @@ class CorrelR():
         T = np.vstack((t1_30.T[mN],t1_50.T[mN],t1_100.T[mN],t1_1000.T[mN],t1_500.T[mN],t1_200.T[mN])).T
         q = np.vstack((t1_30.q[mN2D],t1_50.q[mN2D],t1_100.q[mN2D],t1_1000.q[mN2D],t1_500.q[mN2D],t1_200.q[mN2D])).T
         
-        self.R  = R
-        self.Rp = Rp
         self.Sr = S
         self.Tr = T
         self.qr = q
@@ -351,56 +451,20 @@ class CorrelR():
         self.t2D = t2D
         self.t3D_2 = t3D_2
         self.t2D_2 = t2D_2
+        
 
-def newold(indicator = 'gap',gxs = False):
-    
-    gral  = np.loadtxt('../catalog/gral_091_2.dat').T
-    
-    lM = np.log10(gral[9])
-    lMp = np.array((lM.tolist())*3)
-    
-    off   = gral[13]
-    off2D = np.concatenate((gral[14],gral[15],gral[16]))
-    DV    = gral[17]
-    DV2D  = np.concatenate((gral[18],gral[19],gral[20]))
-    gap  = gral[21]
-    gap2D = np.concatenate((gral[22],gral[23],gral[24]))
-    
-    if 'off' in indicator:
-        gap = off
-        gap2D = off2D
-    elif 'DV' in indicator:
-        gap = DV
-        gap2D = DV2D
 
-    mgap = binned(lM,gap)[-1]
-    mgap2D = binned(lMp,gap2D)[-1]
-    
-    mold = ~mgap
-    mold2D = ~mgap2D
-    
-    mnew = mgap
-    mnew2D = mgap2D
-    
-    if gxs:
-            mN = Galaxias(radio=1000).N > 9
-            mN2D = np.array((Galaxias(radio=1000).N.tolist())*3) > 9
-            mnew = mnew[mN]
-            mnew2D = mnew2D[mN2D]
-            mold = mold[mN]
-            mold2D = mold2D[mN2D] 
-    
-    return mnew,mold,mnew2D,mold2D
-
-def plotR_ind(R,S,color,label):
-    plt.plot(np.median(np.log10(R),axis=0),np.median(S,axis=0),color,label = label)
-    plt.fill_between(np.median(np.log10(R),axis=0),np.median(S,axis=0)+np.std(S,axis=0),np.median(S,axis=0)-np.std(S,axis=0),color = color,alpha=0.1)
+def plotR_ind(R,S,color,label,style='',ax=plt):
+    ax.plot(np.median(R,axis=0),np.median(S,axis=0),color+style,label = label)
+    # ax.fill_between(np.median(np.log10(R),axis=0),np.median(S,axis=0)+np.std(S,axis=0),np.median(S,axis=0)-np.std(S,axis=0),color = color,alpha=0.1)
+    ax.fill_between(np.median(R,axis=0),np.quantile(S, 0.75, axis=0),np.quantile(S, 0.25, axis=0),color = color,alpha=0.1)
 
 
 def plotR(R,S,param_name,infile,
           path_plots = '../plots/correl_dM_radio/' ,
           split_age=True,indicator='gap',gxs = False,
-          label0 = 'all',label1 = 'new',label2 = 'old'):
+          label0 = 'all',label1 = 'non-relaxed',
+          label2 = 'relaxed',limitesy = None):
     
     plt.figure()    
     
@@ -411,15 +475,17 @@ def plotR(R,S,param_name,infile,
     
     plotR_ind(R[:,mask],S[:,mask],'k',label0)
     
-    if S.max() < 2.:
-        limites = [0.4,1.0]
-    else:
-        limites = [0,50]
+    
+    if not limitesy:
+        if S.max() < 2.:
+            limitesy = [0.4,1.0]
+        else:
+            limitesy = [0,50]
         
     if gxs:
-        limites = [2.5,np.log10(2000)] + limites
+        limites = [2.5,np.log10(2000)] + limitesy
     else:
-        limites = [np.log10(30),np.log10(2000)] + limites
+        limites = [np.log10(30),np.log10(2000)] + limitesy
     
     if split_age:
     
@@ -434,7 +500,8 @@ def plotR(R,S,param_name,infile,
     
     Rlegend = np.array(['30kpc','50kpc','0.1R500','R1000','R500','R200'])
     
-    plt.legend()
+    plt.plot(limites[:-2],[1,1],'C7--')
+    plt.legend(loc=2,frameon=False)
     plt.ylabel(param_name)
     plt.xticks(np.median(np.log10(R),axis=0)[mask],Rlegend[mask])
     plt.axis(limites)
