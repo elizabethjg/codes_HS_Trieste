@@ -56,18 +56,18 @@ limites = [0.02,1.,0.88,1.12]
 f, ax = plt.subplots(3,3, figsize=(14,14), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
-# mmas = C.lM30 > 11.5
-# mmasp = C.lM30p > 11.5
+mmas = C.lM30 > 11.5
+mmasp = C.lM30p > 11.5
 
-# ax[2,2].plot(200,200,'k-',label = '$\log(M_{< 30kpc}) > 11.5$')
-# ax[2,2].plot(200,200,'k--',label = '$\log(M_{< 30kpc}) < 11.5$')
+ax[2,2].plot(200,200,'k-',label = '$\log(M_{< 30kpc}) > 11.5$')
+ax[2,2].plot(200,200,'k--',label = '$\log(M_{< 30kpc}) < 11.5$')
 
 
-mmas = C.lM200 > 14.6
-mmasp = C.lM200p > 14.6
+# mmas = C.lM200 > 14.6
+# mmasp = C.lM200p > 14.6
 
-ax[2,2].plot(200,200,'k-',label = '$\log(M_{200}) > 14.6$')
-ax[2,2].plot(200,200,'k--',label = '$\log(M_{200}) < 14.6$')
+# ax[2,2].plot(200,200,'k-',label = '$\log(M_{200}) > 14.6$')
+# ax[2,2].plot(200,200,'k--',label = '$\log(M_{200}) < 14.6$')
 
 
 mlow = ~mmas
@@ -174,7 +174,7 @@ ax[2,0].set_yticks([0.7,0.8,0.9])
 ax[2,1].set_yticks([0.7,0.8,0.9])
 ax[2,2].set_yticks([0.7,0.8,0.9])
 
-plt.savefig(plotspath+'DM.pdf',bbox_inches='tight')
+plt.savefig(plotspath+'DM_30.pdf',bbox_inches='tight')
 
 '''
 
@@ -230,11 +230,15 @@ cDMRM_dv  = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mo_dv, m2d = mmasp*C.mo2d_d
 cDMUL_dv  = CorrelR(DarkMatter,DarkMatter,m = mlow*C.mn_dv, m2d = mlowp*C.mn2d_dv)
 cDMUM_dv  = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mn_dv, m2d = mlowp*C.mn2d_dv)
 
-f, ax = plt.subplots(2,3, figsize=(14,14), sharex=True)
+f, ax = plt.subplots(2,3, figsize=(14,5), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
-ax[1,2].plot(200,200,'k-',label = '$\log(M_{200}) > 14.6$')
-ax[1,2].plot(200,200,'k--',label = '$\log(M_{200}) < 14.6$')
+# ax[1,2].plot(200,200,'k-',label = '$\log(M_{200}) > 14.6$')
+# ax[1,2].plot(200,200,'k--',label = '$\log(M_{200}) < 14.6$')
+
+ax[1,2].plot(200,200,'k-',label = '$\log(M_{< 30kpc}) > 11.5$')
+ax[1,2].plot(200,200,'k--',label = '$\log(M_{< 30kpc}) < 11.5$')
+
 
 plt.legend(loc=1,frameon=False)
 
@@ -284,9 +288,9 @@ ax[0,0].set_ylabel(r'$\theta$')
 ax[1,0].set_ylabel(r'$\theta^*$')
 
 
-ax[0,0].text(0.07,60,'$M_{sat}/M_{BCG}$')
-ax[0,1].text(0.07,60,'$D_{offset}$')
-ax[0,2].text(0.07,60,'$\Delta V$')
+ax[0,0].text(0.07,57,'$M_{sat}/M_{BCG}$')
+ax[0,1].text(0.07,57,'$D_{offset}$')
+ax[0,2].text(0.07,57,'$\Delta V$')
 
 ax[0,0].set_ylim([0,65])
 ax[0,1].set_ylim([0,65])
@@ -308,4 +312,4 @@ ax[1,2].set_ylim([0,65])
 # ax[2,1].set_yticks([0.7,0.8,0.9])
 # ax[2,2].set_yticks([0.7,0.8,0.9])
 
-plt.savefig(plotspath+'theta_DM.pdf',bbox_inches='tight')
+plt.savefig(plotspath+'theta_DM_30.pdf',bbox_inches='tight')
