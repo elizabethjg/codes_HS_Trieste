@@ -2,8 +2,47 @@ import sys
 import numpy as np
 from scipy import stats
 from pylab import *
+from scipy.optimize import curve_fit
+from scipy import integrate
 
 path = '../catalog/nuevosdats/'
+
+def g(x,disp): 
+    return (1./(np.sqrt(2*np.pi)*disp))*np.exp(-0.5*(x/disp)**2)
+
+
+class Dcompute():
+    
+    
+    def __init__(self, theta):
+    
+        m = (theta < 90.)
+        
+        theta = theta[m]
+    
+        theta = np.append(theta,-1.*theta)
+        
+        n,c = np.histogram(theta,50,density=True)
+        c   = (c+(c[1]-c[0])*0.5)[:-1]
+        
+        D = np.mean(2.*(np.deg2rad(theta)))
+        
+        fitg = curve_fit(g,c,n,sigma=np.ones(len(c)),absolute_sigma=True)
+        std_fit = fitg[0][0]
+        
+        argumento = lambda x: g(x,std_fit)*np.cos(2*np.deg2rad(x))
+        Dfit = integrate.quad(argumento, -90., 90.)[0]
+        
+        argumento = lambda x: g(x,np.std(theta))*np.cos(2*np.deg2rad(x))
+        Dstd = integrate.quad(argumento, -90., 90.)[0]
+    
+        self.theta   = theta
+        self.std_fit = std_fit
+        self.std     = np.std(theta)
+        self.D       = D
+        self.Dfit    = Dfit
+        self.Dstd    = Dstd
+
 
 def ninbin(binnumber):
     
@@ -17,10 +56,22 @@ def cosangle(a,b):
     costheta = np.array([])
 
     for j in range(len(a)):
-        cos = np.max(np.abs(np.dot(a[j],b[j])))
+        cos = np.abs(np.dot(a[j],b[j]))
         costheta = np.append(costheta,cos)
     
-    costheta = np.round(costheta,3)
+    costheta[abs(costheta) > 1.] = 1.
+    theta = np.rad2deg(np.arccos(costheta))
+    
+    return costheta,theta
+
+def cosangle2(a,b):
+    costheta = np.array([])
+
+    for j in range(len(a)):
+        cos = np.dot(a[j],b[j])
+        costheta = np.append(costheta,cos)
+    
+    costheta[abs(costheta) > 1.] = 1.
     theta = np.rad2deg(np.arccos(costheta))
     
     return costheta,theta
@@ -28,22 +79,30 @@ def cosangle(a,b):
 
 def binned(x,y,nbins=10):
     
+    def q_75(y):
+        return np.quantile(y, 0.75)
+
+    def q_25(y):
+        return np.quantile(y, 0.25)
+    
     bined = stats.binned_statistic(x,y,statistic='median', bins=nbins)
     x_b = 0.5*(bined.bin_edges[:-1] + bined.bin_edges[1:])
-    y_b     = bined.statistic
-    bined = stats.binned_statistic(x,y,statistic='std', bins=nbins)
-    sy_b     = bined.statistic/np.sqrt(ninbin(bined.binnumber))
+    q50     = bined.statistic
+    
+    bined = stats.binned_statistic(x,y,statistic=q_25, bins=nbins)
+    q25     = bined.statistic
+
+    bined = stats.binned_statistic(x,y,statistic=q_75, bins=nbins)
+    q75     = bined.statistic
+    
     dig   = np.digitize(x,bined.bin_edges)
     mz    = np.ones(len(x))
     for j in range(nbins):
         mbin = dig == (j+1)
-        mz[mbin] = y[mbin] >= y_b[j]   
+        mz[mbin] = y[mbin] >= q50[j]   
     mz = mz.astype(bool)
-    return x_b,y_b,sy_b,mz
-    
-def select_medians(x,y,z,nbins=10):
-    bined = stats.binned_statistic(x,y,statistic='median', bins=nbins)
-        
+    return x_b,q50,q25,q75,mz
+            
 
 def plot_binned(X,Y,label,color='C3',style='',nbins=10):
     x,y,s,m = binned(X,Y,nbins)
@@ -162,7 +221,7 @@ class Stars(Shape):
 
 class Galaxias(Shape):
 
-    def __init__(self, tipo = 'all', radio = 200, masa_cut= False):
+    def __init__(self, tipo = 'all', radio = 200, masa_cut= True):
         
         if tipo == 'all':
         
@@ -187,7 +246,7 @@ class Galaxias(Shape):
             ind = ind + 4
         
         else:
-            self.name_cat = path+'glxs_nounb_hmr_091.dat'
+            self.name_cat = path+'glxs_hmr_nounb_091.dat'
             gal = np.loadtxt(self.name_cat).T
             ind = 2
             self.N  = gal[ind]
@@ -206,6 +265,75 @@ class Galaxias(Shape):
                 ind = 999
         
         Shape.__init__(self, ind=ind, name_cat=self.name_cat)
+
+class Random():
+
+    def __init__(self, radio = 200):
+        
+        
+        gal = np.loadtxt(path+'dmrand_nounb_091.dat').T
+        
+        if radio == 1000:
+            ind = 2
+        elif radio == 500:
+            ind = 2+69
+        elif radio == 200:
+            ind = 2+69*2
+            
+        self.N  = gal[ind]
+        nx = gal[ind+1]
+        ny = gal[ind+2]
+        nz = gal[ind+3]
+        self.n = np.concatenate((nx,ny,nz))
+        
+        self.T25 = gal[ind+4]
+        self.T50 = gal[ind+5]
+        self.T75 = gal[ind+6]
+
+        self.S25 = gal[ind+7]
+        self.S50 = gal[ind+8]
+        self.S75 = gal[ind+9]
+
+        self.tgx25 = gal[ind+10]
+        self.tgx50 = gal[ind+11]
+        self.tgx75 = gal[ind+12]
+
+        self.tdm25 = gal[ind+13]
+        self.tdm50 = gal[ind+14]
+        self.tdm75 = gal[ind+15]
+        
+        self.T_m = gal[ind+16]
+        self.S_m = gal[ind+17]
+        self.tgx_m = gal[ind+18]
+        self.tdm_m = gal[ind+19]
+        
+        self.T_std = gal[ind+20]
+        self.S_std = gal[ind+21]
+        self.tgx_std = gal[ind+22]
+        self.tdm_std = gal[ind+23]
+
+        self.q25 = np.concatenate((gal[ind+24],gal[ind+24+15],gal[ind+24+15*2]))
+        self.q50 = np.concatenate((gal[ind+25],gal[ind+25+15],gal[ind+25+15*2]))
+        self.q75 = np.concatenate((gal[ind+26],gal[ind+26+15],gal[ind+26+15*2]))
+
+        self.t2Dgx25 = np.concatenate((gal[ind+27],gal[ind+27+15],gal[ind+27+15*2]))
+        self.t2Dgx50 = np.concatenate((gal[ind+28],gal[ind+28+15],gal[ind+28+15*2]))
+        self.t2Dgx75 = np.concatenate((gal[ind+29],gal[ind+29+15],gal[ind+29+15*2]))
+
+        self.t2Ddm25 = np.concatenate((gal[ind+30],gal[ind+30+15],gal[ind+30+15*2]))
+        self.t2Ddm50 = np.concatenate((gal[ind+31],gal[ind+31+15],gal[ind+31+15*2]))
+        self.t2Ddm75 = np.concatenate((gal[ind+32],gal[ind+32+15],gal[ind+32+15*2]))
+
+        self.q_m       = np.concatenate((gal[ind+33],gal[ind+33+15],gal[ind+33+15*2]))
+        self.t2Dgx_m   = np.concatenate((gal[ind+34],gal[ind+34+15],gal[ind+34+15*2]))
+        self.t2Ddm_m   = np.concatenate((gal[ind+35],gal[ind+35+15],gal[ind+35+15*2]))
+
+        self.q_std       = np.concatenate((gal[ind+36],gal[ind+36+15],gal[ind+36+15*2]))
+        self.t2Dgx_std   = np.concatenate((gal[ind+37],gal[ind+37+15],gal[ind+37+15*2]))
+        self.t2Ddm_std   = np.concatenate((gal[ind+38],gal[ind+38+15],gal[ind+38+15*2]))
+        
+        
+        
 
 def Tenneti(lM,a):
     lMpiv = np.log10(1e12)
@@ -281,7 +409,7 @@ class Clusters:
 
 class CorrelR():
     
-    def __init__(self,trazer1,trazer2,m = [],m2d = []):
+    def __init__(self,trazer1,trazer2,mN = [],mN2D = []):
     
         gral  = np.loadtxt(path+'gral_nounb_091.dat').T
         
@@ -297,22 +425,18 @@ class CorrelR():
         t2_500  = trazer2(radio=500)
         t2_1000 = trazer2(radio=1000)
 
-        if not len(m):
-            m   = (np.ones(len(t1_30.S)).astype(bool))
-            m2d = (np.ones(len(t1_30.q)).astype(bool))
+        if not len(mN):
+            mN   = (np.ones(len(t1_200.S)).astype(bool))
+            mN2D = (np.ones(len(t1_200.q)).astype(bool))
         
         try:
             t1_30   = trazer1(radio=30)
             t1_50   = trazer1(radio=50)
             t1_100  = trazer1(radio=100)
-            mN      = m
-            mN2D    = m2d
         except:
             t1_30   = t2_30
             t1_50   = t2_50
             t1_100  = t2_100
-            mN = (t1_1000.N > 9)*m
-            mN2D = (np.array((t1_1000.N.tolist())*3) > 9)*m2d
 
             
         dm   = DarkMatter(1000)
@@ -457,6 +581,8 @@ class CorrelR():
 def plotR_ind(R,S,color,label,style='',ax=plt):
     ax.plot(np.median(R,axis=0),np.median(S,axis=0),color+style,label = label)
     # ax.fill_between(np.median(np.log10(R),axis=0),np.median(S,axis=0)+np.std(S,axis=0),np.median(S,axis=0)-np.std(S,axis=0),color = color,alpha=0.1)
+    ax.plot(np.median(R,axis=0),np.quantile(S, 0.75, axis=0),color+style,alpha=0.2)
+    ax.plot(np.median(R,axis=0),np.quantile(S, 0.25, axis=0),color+style,alpha=0.2)
     ax.fill_between(np.median(R,axis=0),np.quantile(S, 0.75, axis=0),np.quantile(S, 0.25, axis=0),color = color,alpha=0.1)
 
 
