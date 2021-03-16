@@ -25,7 +25,8 @@ class Dcompute():
         n,c = np.histogram(theta,50,density=True)
         c   = (c+(c[1]-c[0])*0.5)[:-1]
         
-        D = np.mean(2.*(np.deg2rad(theta)))
+        D    = np.mean(np.cos(2.*(np.deg2rad(theta))))
+        Dstd = np.std(np.cos(2.*(np.deg2rad(theta))))
         
         fitg = curve_fit(g,c,n,sigma=np.ones(len(c)),absolute_sigma=True)
         std_fit = fitg[0][0]
@@ -34,7 +35,7 @@ class Dcompute():
         Dfit = integrate.quad(argumento, -90., 90.)[0]
         
         argumento = lambda x: g(x,np.std(theta))*np.cos(2*np.deg2rad(x))
-        Dstd = integrate.quad(argumento, -90., 90.)[0]
+        Dg  = integrate.quad(argumento, -90., 90.)[0]
     
         self.theta   = theta
         self.std_fit = std_fit
@@ -42,6 +43,7 @@ class Dcompute():
         self.D       = D
         self.Dfit    = Dfit
         self.Dstd    = Dstd
+        self.Dg      = Dg
 
 
 def ninbin(binnumber):
@@ -349,6 +351,9 @@ class Clusters:
 
         gral  = np.loadtxt(path+'gral_nounb_091.dat').T
         
+        self.D     = gral[0]
+        self.sub   = gral[1]
+        
         self.R1000 = gral[4]
         self.R500  = gral[5]
         self.R200  = gral[6]
@@ -405,7 +410,88 @@ class Clusters:
         self.Rp = np.array((self.R.tolist())*3)
         self.Rsp = np.array((self.Rs.tolist())*3)
         
+class ICL:
+    
+    def __init__(self,trazer='icl'):
         
+        
+        path = '../catalog/tablas_'+trazer+'/'
+               
+        D    = np.array([])
+        proj = np.array([])
+        A    = []
+        q    = []
+        eq   = []
+        PA   = []
+        ePA  = []
+
+        A0    = []
+        q0    = []
+        eq0   = []
+        PA0   = []
+        ePA0  = []
+        
+        p    = ['xy','xz','yz']
+        
+        if trazer == 'icl':
+            csample = np.arange(1,30)
+        else:
+            csample = [1,13,26]
+        
+        for i in range(3):
+        
+            for j in csample:
+                
+                tab = np.loadtxt(path+'d'+str(int(j))+'_'+p[i]+'.dat',dtype='str').T
+            
+                mindef = ~(tab[-1] == 'INDEF')
+                tab[-5][~mindef] = '99.'
+                musar  = (tab[-5].astype(float) < 10.)
+            
+                D    = np.append(D,j)
+                proj = np.append(proj,i)
+                
+                try:
+                    a, i0, ei0, e, ee, pa, epa, x0, ex0, y0, ey0 = tab[:,musar].astype(float)                
+                except:
+                    a, i0, e, ee, pa, epa, x0, ex0, y0, ey0 = tab[:,musar].astype(float)                
+                    
+                pa[pa < 0.] = 360. + pa[pa < 0.]
+                
+                pa[pa > 180.] = pa[pa > 180.] - 180.
+                
+                A   = A + [(1+a)*20.]
+                PA  = PA + [pa]
+                ePA = ePA + [epa]
+                q   = q + [1.-e]
+                eq = eq + [ee]
+
+                A0   = A0 + [(1+a[-1])*20.]
+                PA0  = PA0 + [pa[-1]]
+                ePA0 = ePA0 + [epa[-1]]
+                q0   = q0 + [1.-e[-1]]
+                eq0 = eq0 + [ee[-1]]
+                
+        
+
+                
+        self.D    = D
+        self.proj = proj
+        self.a    = A
+        self.q    = q
+        self.eq   = eq
+        self.PA   = PA
+        self.ePA  = ePA
+
+        self.a0   = np.array(A0)
+        self.q0   = np.array(q0)
+        self.eq0  = np.array(eq0)
+        self.PA0  = np.array(PA0)
+        self.ePA0 = np.array(ePA0)
+        
+        
+                
+            
 
 class CorrelR():
     

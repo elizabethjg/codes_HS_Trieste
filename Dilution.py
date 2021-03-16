@@ -15,6 +15,17 @@ cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
+plt.rcParams['axes.grid'] =True
+plt.rcParams['grid.color'] = '0.8'
+plt.rcParams['grid.linestyle'] = '--'
+plt.rcParams['xtick.top'] = True
+plt.rcParams['xtick.bottom'] = True
+plt.rcParams['ytick.left'] = True
+plt.rcParams['ytick.right'] = True
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+
+
 matplotlib.rcParams.update({'font.size': 14})
 
 
@@ -25,55 +36,64 @@ def D(DM200,ax1,ax2):
     D_gx500 = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1])
     D_gx1000 = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1])
     
-    Dgx = np.array([D_gx1000.D,D_gx500.D,D_gx200.D])
+    Dgx     = np.array([D_gx1000.D,D_gx500.D,D_gx200.D])
+    Dgx_std = np.array([D_gx1000.Dstd,D_gx500.D,D_gx200.Dstd])
     
     D_gx200M  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mmas])
     D_gx1000M = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mmas])
     D_gx500M  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mmas])
     
     Dgx_M = np.array([D_gx1000M.D,D_gx500M.D,D_gx200M.D])
+    Dgx_M_std = np.array([D_gx1000M.Dstd,D_gx500M.Dstd,D_gx200M.Dstd])
     
     D_gx200L  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mlow])
     D_gx1000L = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mlow])
     D_gx500L  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mlow])
     
     Dgx_L = np.array([D_gx1000L.D,D_gx500L.D,D_gx200L.D])
+    Dgx_L_std = np.array([D_gx1000L.Dstd,D_gx500L.Dstd,D_gx200L.Dstd])
     
     D_gx200R_gap  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][C.mo2d_gap])
     D_gx1000R_gap = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][C.mo2d_gap])
     D_gx500R_gap  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][C.mo2d_gap])
     
     Dgx_Rgap = np.array([D_gx1000R_gap.D,D_gx500R_gap.D,D_gx200R_gap.D])
+    Dgx_Rgap_std = np.array([D_gx1000R_gap.Dstd,D_gx500R_gap.Dstd,D_gx200R_gap.Dstd])
     
     D_gx200U_gap  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][C.mn2d_gap])
     D_gx1000U_gap = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][C.mn2d_gap])
     D_gx500U_gap  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][C.mn2d_gap])
     
     Dgx_Ugap = np.array([D_gx1000U_gap.D,D_gx500U_gap.D,D_gx200U_gap.D])
+    Dgx_Ugap_std = np.array([D_gx1000U_gap.Dstd,D_gx500U_gap.Dstd,D_gx200U_gap.Dstd])
     
     D_gx200R_off  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][C.mo2d_off])
     D_gx1000R_off = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][C.mo2d_off])
     D_gx500R_off  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][C.mo2d_off])
     
     Dgx_Roff = np.array([D_gx1000R_off.D,D_gx500R_off.D,D_gx200R_off.D])
+    Dgx_Roff_std = np.array([D_gx1000R_off.Dstd,D_gx500R_off.Dstd,D_gx200R_off.Dstd])
     
     D_gx200U_off  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][C.mn2d_off])
     D_gx1000U_off = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][C.mn2d_off])
     D_gx500U_off  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][C.mn2d_off])
     
     Dgx_Uoff = np.array([D_gx1000U_off.D,D_gx500U_off.D,D_gx200U_off.D])
+    Dgx_Uoff_std = np.array([D_gx1000U_off.Dstd,D_gx500U_off.Dstd,D_gx200U_off.Dstd])
     
     D_gx200R_dv  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][C.mo2d_dv])
     D_gx1000R_dv = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][C.mo2d_dv])
     D_gx500R_dv  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][C.mo2d_dv])
     
     Dgx_Rdv = np.array([D_gx1000R_dv.D,D_gx500R_dv.D,D_gx200R_dv.D])
+    Dgx_Rdv_std = np.array([D_gx1000R_dv.Dstd,D_gx500R_dv.Dstd,D_gx200R_dv.Dstd])
     
     D_gx200U_dv  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][C.mn2d_dv])
     D_gx1000U_dv = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][C.mn2d_dv])
     D_gx500U_dv  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][C.mn2d_dv])
     
     Dgx_Udv = np.array([D_gx1000U_dv.D,D_gx500U_dv.D,D_gx200U_dv.D])
+    Dgx_Udv_std = np.array([D_gx1000U_dv.Dstd,D_gx500U_dv.Dstd,D_gx200U_dv.Dstd])
     
     #################
     
@@ -82,36 +102,42 @@ def D(DM200,ax1,ax2):
     D_gx500RM_gap  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mmas*C.mo2d_gap])
     
     Dgx_RMgap = np.array([D_gx1000RM_gap.D,D_gx500RM_gap.D,D_gx200RM_gap.D])
+    Dgx_RMgap_std = np.array([D_gx1000RM_gap.Dstd,D_gx500RM_gap.Dstd,D_gx200RM_gap.Dstd])
     
     D_gx200UM_gap  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mmas*C.mn2d_gap])
     D_gx1000UM_gap = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mmas*C.mn2d_gap])
     D_gx500UM_gap  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mmas*C.mn2d_gap])
     
     Dgx_UMgap = np.array([D_gx1000UM_gap.D,D_gx500UM_gap.D,D_gx200UM_gap.D])
+    Dgx_UMgap_std = np.array([D_gx1000UM_gap.Dstd,D_gx500UM_gap.Dstd,D_gx200UM_gap.Dstd])
     
     D_gx200RM_off  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mmas*C.mo2d_off])
     D_gx1000RM_off = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mmas*C.mo2d_off])
     D_gx500RM_off  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mmas*C.mo2d_off])
     
     Dgx_RMoff = np.array([D_gx1000RM_off.D,D_gx500RM_off.D,D_gx200RM_off.D])
+    Dgx_RMoff_std = np.array([D_gx1000RM_off.Dstd,D_gx500RM_off.Dstd,D_gx200RM_off.Dstd])
     
     D_gx200UM_off  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mmas*C.mn2d_off])
     D_gx1000UM_off = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mmas*C.mn2d_off])
     D_gx500UM_off  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mmas*C.mn2d_off])
     
     Dgx_UMoff = np.array([D_gx1000UM_off.D,D_gx500UM_off.D,D_gx200UM_off.D])
+    Dgx_UMoff_std = np.array([D_gx1000UM_off.Dstd,D_gx500UM_off.Dstd,D_gx200UM_off.Dstd])
     
     D_gx200RM_dv  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mmas*C.mo2d_dv])
     D_gx1000RM_dv = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mmas*C.mo2d_dv])
     D_gx500RM_dv  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mmas*C.mo2d_dv])
     
     Dgx_RMdv = np.array([D_gx1000RM_dv.D,D_gx500RM_dv.D,D_gx200RM_dv.D])
+    Dgx_RMdv_std = np.array([D_gx1000RM_dv.Dstd,D_gx500RM_dv.Dstd,D_gx200RM_dv.Dstd])
     
     D_gx200UM_dv  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mmas*C.mn2d_dv])
     D_gx1000UM_dv = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mmas*C.mn2d_dv])
     D_gx500UM_dv  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mmas*C.mn2d_dv])
     
     Dgx_UMdv = np.array([D_gx1000UM_dv.D,D_gx500UM_dv.D,D_gx200UM_dv.D])
+    Dgx_UMdv_std = np.array([D_gx1000UM_dv.Dstd,D_gx500UM_dv.Dstd,D_gx200UM_dv.Dstd])
     
     #######################
     
@@ -120,36 +146,42 @@ def D(DM200,ax1,ax2):
     D_gx500RL_gap  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mlow*C.mo2d_gap])
     
     Dgx_RLgap = np.array([D_gx1000RL_gap.D,D_gx500RL_gap.D,D_gx200RL_gap.D])
+    Dgx_RLgap_std = np.array([D_gx1000RL_gap.Dstd,D_gx500RL_gap.Dstd,D_gx200RL_gap.Dstd])
     
     D_gx200UL_gap  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mlow*C.mn2d_gap])
     D_gx1000UL_gap = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mlow*C.mn2d_gap])
     D_gx500UL_gap  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mlow*C.mn2d_gap])
     
     Dgx_ULgap = np.array([D_gx1000UL_gap.D,D_gx500UL_gap.D,D_gx200UL_gap.D])
+    Dgx_ULgap_std = np.array([D_gx1000UL_gap.Dstd,D_gx500UL_gap.Dstd,D_gx200UL_gap.Dstd])
     
     D_gx200RL_off  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mlow*C.mo2d_off])
     D_gx1000RL_off = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mlow*C.mo2d_off])
     D_gx500RL_off  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mlow*C.mo2d_off])
     
     Dgx_RLoff = np.array([D_gx1000RL_off.D,D_gx500RL_off.D,D_gx200RL_off.D])
+    Dgx_RLoff_std = np.array([D_gx1000RL_off.Dstd,D_gx500RL_off.Dstd,D_gx200RL_off.Dstd])
     
     D_gx200UL_off  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mlow*C.mn2d_off])
     D_gx1000UL_off = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mlow*C.mn2d_off])
     D_gx500UL_off  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mlow*C.mn2d_off])
     
     Dgx_ULoff = np.array([D_gx1000UL_off.D,D_gx500UL_off.D,D_gx200UL_off.D])
+    Dgx_ULoff_std = np.array([D_gx1000UL_off.Dstd,D_gx500UL_off.Dstd,D_gx200UL_off.Dstd])
     
     D_gx200RL_dv  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mlow*C.mo2d_dv])
     D_gx1000RL_dv = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mlow*C.mo2d_dv])
     D_gx500RL_dv  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mlow*C.mo2d_dv])
     
     Dgx_RLdv = np.array([D_gx1000RL_dv.D,D_gx500RL_dv.D,D_gx200RL_dv.D])
+    Dgx_RLdv_std = np.array([D_gx1000RL_dv.Dstd,D_gx500RL_dv.Dstd,D_gx200RL_dv.Dstd])
     
     D_gx200UL_dv  = Dcompute(cosangle(gx200.a2D,DM200.a2D)[1][mlow*C.mn2d_dv])
     D_gx1000UL_dv = Dcompute(cosangle(gx1000.a2D,DM200.a2D)[1][mlow*C.mn2d_dv])
     D_gx500UL_dv  = Dcompute(cosangle(gx500.a2D,DM200.a2D)[1][mlow*C.mn2d_dv])
     
     Dgx_ULdv = np.array([D_gx1000UL_dv.D,D_gx500UL_dv.D,D_gx200UL_dv.D])
+    Dgx_ULdv_std = np.array([D_gx1000UL_dv.Dstd,D_gx500UL_dv.Dstd,D_gx200UL_dv.Dstd])
     
     ########################
     
@@ -168,6 +200,12 @@ def D(DM200,ax1,ax2):
     ax1.plot(Rgx_UMgap,Dgx_UMgap,'C0',alpha=1)
     ax1.plot(Rgx_UMoff,Dgx_UMoff,'C0',alpha=0.75)
     ax1.plot(Rgx_UMdv ,Dgx_UMdv ,'C0',alpha=0.5) 
+    # ax1.errorbar(Rgx_RMgap,Dgx_RMgap,Dgx_RMgap_std,ecolor='C3',alpha=1)
+    # ax1.errorbar(Rgx_RMoff,Dgx_RMoff,Dgx_RMoff_std,ecolor='C3',alpha=0.75)
+    # ax1.errorbar(Rgx_RMdv ,Dgx_RMdv ,Dgx_RMdv_std,ecolor= 'C3',alpha=0.5)                        
+    # ax1.errorbar(Rgx_UMgap,Dgx_UMgap,Dgx_UMgap_std,ecolor='C0',alpha=1)
+    # ax1.errorbar(Rgx_UMoff,Dgx_UMoff,Dgx_UMoff_std,ecolor='C0',alpha=0.75)
+    # ax1.errorbar(Rgx_UMdv ,Dgx_UMdv ,Dgx_UMdv_std,ecolor='C0',alpha=0.5) 
     
     ax1.plot(Rgx_RLgap,Dgx_RLgap,'oC3')
     ax1.plot(Rgx_RLoff,Dgx_RLoff,'sC3')
@@ -383,13 +421,6 @@ def D(DM200,ax1,ax2):
     
     ax2.plot(Rst,Dst,'k')
     
-    # ax2.plot(100,100,'k-',label='$\log(M_{200}/M_\odot) > 14.6$')
-    # ax2.plot(100,100,'k--',label='$\log(M_{200}/M_\odot) < 14.6$')
-    
-    ax2.plot(100,100,'ko',label=r'$M_{sat}/M_{BCG}$')
-    ax2.plot(100,100,'ks',label=r'$D_{offset}$')
-    ax2.plot(100,100,'k^',label=r'$\Delta V$')
-
     
     ax2.plot(Rst_RMgap,Dst_RMgap,'oC3')
     ax2.plot(Rst_RMoff,Dst_RMoff,'sC3')
@@ -398,10 +429,10 @@ def D(DM200,ax1,ax2):
     ax2.plot(Rst_UMoff,Dst_UMoff,'sC0')
     ax2.plot(Rst_UMdv ,Dst_UMdv ,'^C0')
     
-    ax2.plot(Rst_RMgap,Dst_RMgap,'C3',alpha=1)
+    ax2.plot(Rst_RMgap,Dst_RMgap,'C3',alpha=1,label='relaxed')
     ax2.plot(Rst_RMoff,Dst_RMoff,'C3',alpha=0.75)
     ax2.plot(Rst_RMdv ,Dst_RMdv ,'C3',alpha=0.5)
-    ax2.plot(Rst_UMgap,Dst_UMgap,'C0',alpha=1)
+    ax2.plot(Rst_UMgap,Dst_UMgap,'C0',alpha=1,label='non-relaxed')
     ax2.plot(Rst_UMoff,Dst_UMoff,'C0',alpha=0.75)
     ax2.plot(Rst_UMdv ,Dst_UMdv ,'C0',alpha=0.5)
     
@@ -419,6 +450,8 @@ def D(DM200,ax1,ax2):
     ax2.plot(Rst_ULoff,Dst_ULoff,'C0--',alpha=0.75)
     ax2.plot(Rst_ULdv ,Dst_ULdv ,'C0--',alpha=0.5)
 
+    ax2.plot(100,100,'k-',label='$\log(M_{200}/M_\odot) > 14.6$')
+    ax2.plot(100,100,'k--',label='$\log(M_{200}/M_\odot) < 14.6$')
 
 
 
@@ -505,15 +538,15 @@ Rst_RLdv  = np.median(C.Rsp[mlow*C.mo2d_dv],axis=0)
 Rst_ULdv  = np.median(C.Rsp[mlow*C.mn2d_dv],axis=0)
 
 ####### PLOT
-f, ax = plt.subplots(3,2, figsize=(14,14), sharey=True)
+f, ax = plt.subplots(3,2, figsize=(12,12), sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 ax[0,0].text(0.45,0.9,'Galaxies')
 ax[0,1].text(0.02,0.9,'Stars')
 
-ax[0,0].text(0.8,0.37,r'$\theta_{DM}(R < R_{200})$')
-ax[1,0].text(0.8,0.37,r'$\theta_{DM}(R < R_{500})$')
-ax[2,0].text(0.8,0.37,r'$\theta_{DM}(R < R_{1000})$')
+ax[0,0].text(0.8,0.37,r'$\theta^*_{DM}(R < R_{200})$')
+ax[1,0].text(0.8,0.37,r'$\theta^*_{DM}(R < R_{500})$')
+ax[2,0].text(0.8,0.37,r'$\theta^*_{DM}(R < R_{1000})$')
 
 
 ax[0,1].set_xlim([0.0105,1.5])
@@ -547,13 +580,20 @@ ax[0,0].set_ylabel('$D$')
 ax[1,0].set_ylabel('$D$')
 ax[2,0].set_ylabel('$D$')
 
-ax[0,0].set_ylim([0.3,1.0])
+ax[0,0].set_ylim([0.25,1.0])
+
+ax[1,1].plot(100,100,'ko',label=r'$M_{sat}/M_{BCG}$')
+ax[1,1].plot(100,100,'ks',label=r'$D_{offset}$')
+ax[1,1].plot(100,100,'k^',label=r'$\Delta V$')
+ax[1,1].legend(frameon=False,loc=4)
+
 
 D(DM200,ax[0,0],ax[0,1])
 D(DM500,ax[1,0],ax[1,1])
 D(DM1000,ax[2,0],ax[2,1])
 
-ax[2,1].legend(frameon=False)
+ax[2,1].legend(frameon=False,loc=4)
+
 
 plt.savefig(plotspath+'D_R.pdf',bbox_inches='tight')
 

@@ -13,6 +13,16 @@ cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
+plt.rcParams['axes.grid'] =True
+plt.rcParams['grid.color'] = '0.8'
+plt.rcParams['grid.linestyle'] = '--'
+plt.rcParams['xtick.top'] = True
+plt.rcParams['xtick.bottom'] = True
+plt.rcParams['ytick.left'] = True
+plt.rcParams['ytick.right'] = True
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+
 matplotlib.rcParams.update({'font.size': 14})
 
 
@@ -73,7 +83,7 @@ mep    = np.array((me.tolist())*3)
 # PLOT formas
 
 
-f, ax = plt.subplots(3,1, figsize=(6,14), sharex=True)
+f, ax = plt.subplots(3,1, figsize=(6,12), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 plot_fig(np.log10(gx1000.N),gx1000.T/DM1000.T,
@@ -135,7 +145,7 @@ f.savefig(plotspath+'shape_galaxies.pdf',bbox_inches='tight')
 
 # PLOT concentradas / extendidas
 
-f, ax = plt.subplots(3,1, figsize=(6,14), sharex=True)
+f, ax = plt.subplots(3,1, figsize=(6,12), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 plot_fig(np.log10(gx_c.N),gx_c.T/DM200.T,
@@ -256,7 +266,7 @@ tgxcp  = cgce.t2D_gxc
 tgxep  = cgce.t2D_gxe
 
 
-f, ax = plt.subplots(2,1, figsize=(6,9.5), sharex=True)
+f, ax = plt.subplots(2,1, figsize=(6,8), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 plot_fig(np.log10(gx1000.N),tgx.T[-3],
@@ -301,7 +311,7 @@ f.savefig(plotspath+'align_galaxies.pdf',bbox_inches='tight')
 
 # ALIGN CON Y EXT
 
-f, ax = plt.subplots(2,1, figsize=(6,9.5), sharex=True)
+f, ax = plt.subplots(2,1, figsize=(6,8), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 plot_fig(np.log10(gx_c.N),tgxc.T[-1],

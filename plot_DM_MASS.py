@@ -13,6 +13,16 @@ cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
+# plt.rcParams['axes.grid'] =True
+# plt.rcParams['grid.color'] = '0.8'
+# plt.rcParams['grid.linestyle'] = '--'
+plt.rcParams['xtick.top'] = True
+plt.rcParams['xtick.bottom'] = True
+plt.rcParams['ytick.left'] = True
+plt.rcParams['ytick.right'] = True
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+
 matplotlib.rcParams.update({'font.size': 14})
 
 
@@ -35,8 +45,10 @@ TDM_r = np.vstack((DM30.T,DM50.T,DM100.T,DM1000.T,DM500.T,DM200.T)).T
 qDM_r = np.vstack((DM30.q,DM50.q,DM100.q,DM1000.q,DM500.q,DM200.q)).T
 
 
-f, ax = plt.subplots(3,3, figsize=(14,14), sharex=True)
+f, ax = plt.subplots(3,3, figsize=(12,12), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
+for ax2 in ax.flatten():
+    [ax2.axvline(x, ls='--', color='k',lw=0.5,alpha=0.5) for x in np.median(C.Rsp,axis=0)]
 
 # mmas = C.lM30 > 11.5
 # mmasp = C.lM30p > 11.5
@@ -48,30 +60,30 @@ f.subplots_adjust(hspace=0,wspace=0)
 mmas = C.lM200 > 14.6
 mmasp = C.lM200p > 14.6
 
-ax[1,2].plot(200,200,'k-',label = '$\log(M_{200}) > 14.6$')
-ax[1,2].plot(200,200,'k--',label = '$\log(M_{200}) < 14.6$')
+ax[2,2].plot(200,200,'k-',label = '$\log(M_{200}/M_\odot) > 14.6$')
+ax[2,2].plot(200,200,'k--',label = '$\log(M_{200}/M_\odot) < 14.6$')
 
 
 mlow = ~mmas
 mlowp = ~mmasp
 
 
-ax[1,2].legend(loc=3,frameon=False)
+ax[2,2].legend(loc=3,frameon=False,fontsize=13)
 
-cDMRL_gap = CorrelR(DarkMatter,DarkMatter,m = mlow*C.mo_gap, m2d = mlowp*C.mo2d_gap)
-cDMRM_gap = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mo_gap, m2d = mmasp*C.mo2d_gap)
-cDMUL_gap = CorrelR(DarkMatter,DarkMatter,m = mlow*C.mn_gap, m2d = mlowp*C.mn2d_gap)
-cDMUM_gap = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mn_gap, m2d = mmasp*C.mn2d_gap)
-
-cDMRL_off = CorrelR(DarkMatter,DarkMatter,m = mlow*C.mo_off, m2d = mlowp*C.mo2d_off)
-cDMRM_off = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mo_off, m2d = mmasp*C.mo2d_off)
-cDMUL_off = CorrelR(DarkMatter,DarkMatter,m = mlow*C.mn_off, m2d = mlowp*C.mn2d_off)
-cDMUM_off = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mn_off, m2d = mmasp*C.mn2d_off)
-
-cDMRL_dv  = CorrelR(DarkMatter,DarkMatter,m = mlow*C.mo_dv, m2d = mlowp*C.mo2d_dv)
-cDMRM_dv  = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mo_dv, m2d = mmasp*C.mo2d_dv)
-cDMUL_dv  = CorrelR(DarkMatter,DarkMatter,m = mlow*C.mn_dv, m2d = mlowp*C.mn2d_dv)
-cDMUM_dv  = CorrelR(DarkMatter,DarkMatter,m = mmas*C.mn_dv, m2d = mmasp*C.mn2d_dv)
+cDMRL_gap = CorrelR(DarkMatter,DarkMatter,mN = mlow*C.mo_gap, mN2D = mlowp*C.mo2d_gap)
+cDMRM_gap = CorrelR(DarkMatter,DarkMatter,mN = mmas*C.mo_gap, mN2D = mmasp*C.mo2d_gap)
+cDMUL_gap = CorrelR(DarkMatter,DarkMatter,mN = mlow*C.mn_gap, mN2D = mlowp*C.mn2d_gap)
+cDMUM_gap = CorrelR(DarkMatter,DarkMatter,mN = mmas*C.mn_gap, mN2D = mmasp*C.mn2d_gap)
+                                           
+cDMRL_off = CorrelR(DarkMatter,DarkMatter,mN = mlow*C.mo_off, mN2D = mlowp*C.mo2d_off)
+cDMRM_off = CorrelR(DarkMatter,DarkMatter,mN = mmas*C.mo_off, mN2D = mmasp*C.mo2d_off)
+cDMUL_off = CorrelR(DarkMatter,DarkMatter,mN = mlow*C.mn_off, mN2D = mlowp*C.mn2d_off)
+cDMUM_off = CorrelR(DarkMatter,DarkMatter,mN = mmas*C.mn_off, mN2D = mmasp*C.mn2d_off)
+                                           
+cDMRL_dv  = CorrelR(DarkMatter,DarkMatter,mN = mlow*C.mo_dv, mN2D = mlowp*C.mo2d_dv)
+cDMRM_dv  = CorrelR(DarkMatter,DarkMatter,mN = mmas*C.mo_dv, mN2D = mmasp*C.mo2d_dv)
+cDMUL_dv  = CorrelR(DarkMatter,DarkMatter,mN = mlow*C.mn_dv, mN2D = mlowp*C.mn2d_dv)
+cDMUM_dv  = CorrelR(DarkMatter,DarkMatter,mN = mmas*C.mn_dv, mN2D = mmasp*C.mn2d_dv)
 
 
 mo = DM200.T < 1/3.
@@ -129,6 +141,7 @@ plotR_ind(C.Rsp[mmasp*C.mn2d_dv] ,qDM_r[mmasp*C.mn2d_dv] ,'C0','all',ax = ax[2,2
 ax[0,0].set_xlim([0.012,1.01])
 ax[0,0].set_xscale('log')
 
+
 ax[2,0].set_xlabel('$R/R_{200}$')
 ax[2,1].set_xlabel('$R/R_{200}$')
 ax[2,2].set_xlabel('$R/R_{200}$')
@@ -174,8 +187,10 @@ ax[2,2].set_yticks([0.7,0.8,0.9])
 
 plt.savefig(plotspath+'DM.pdf',bbox_inches='tight')
 
-f, ax = plt.subplots(4,3, figsize=(14,14), sharex=True)
+f, ax = plt.subplots(4,3, figsize=(12,12), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
+for ax2 in ax.flatten():
+    [ax2.axvline(x, ls='--', color='k',lw=0.5,alpha=0.5) for x in np.median(C.Rsp,axis=0)]
 
 # mmas = C.lM30 > 11.5
 # mmasp = C.lM30p > 11.5
@@ -187,15 +202,15 @@ f.subplots_adjust(hspace=0,wspace=0)
 mmas = C.lM200 > 14.6
 mmasp = C.lM200p > 14.6
 
-ax[1,2].plot(200,200,'k-',label = '$\log(M_{200}) > 14.6$')
-ax[1,2].plot(200,200,'k--',label = '$\log(M_{200}) < 14.6$')
+ax[1,2].plot(200,200,'k-',label = '$\log(M_{200}/M_\odot) > 14.6$')
+ax[1,2].plot(200,200,'k--',label = '$\log(M_{200}/M_\odot) < 14.6$')
 
 
 mlow = ~mmas
 mlowp = ~mmasp
 
 
-ax[1,2].legend(loc=1,frameon=False)
+ax[1,2].legend(loc=1,frameon=False,fontsize=13)
 
 plotR_ind(C.Rs[mlow*C.mo_gap],cDMRL_gap.t3D_2,'C3','all',ax = ax[0,0],style='--')
 plotR_ind(C.Rs[mmas*C.mo_gap],cDMRM_gap.t3D_2,'C3','all',ax = ax[0,0],style='-')
@@ -252,6 +267,8 @@ plotR_ind(C.Rsp[mmasp*C.mn2d_dv] , cDMUM_dv.t2D_dm200, 'C0','all',ax = ax[3,2],s
 
 ax[0,0].set_xlim([0.012,1.01])
 ax[0,0].set_xscale('log')
+
+
 
 ax[3,0].set_xlabel('$R/R_{200}$')
 ax[3,1].set_xlabel('$R/R_{200}$')

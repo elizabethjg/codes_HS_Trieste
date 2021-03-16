@@ -12,6 +12,14 @@ cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
+plt.rcParams['xtick.top'] = True
+plt.rcParams['xtick.bottom'] = True
+plt.rcParams['ytick.left'] = True
+plt.rcParams['ytick.right'] = True
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+
+
 matplotlib.rcParams.update({'font.size': 13})
 
 
@@ -76,59 +84,6 @@ Rp = np.array((R.tolist())*3)
 
 
 
-
-# print(pearsonr(np.log10(N200),(DM200.S-H200.S)))
-# print(pearsonr(np.log10(N500),(DM500.S-H500.S)))
-# print(pearsonr(np.log10(N1000),(DM1000.S-H1000.S)))
-
-
-# plt.figure()
-# plt.plot(np.log10(N200),(DM200.S-H200.S),'k.')
-# plt.plot(np.log10(N500),(DM500.S-H500.S),'C4.')
-# plt.plot(np.log10(N1000),(DM1000.S-H1000.S),'C6.')
-
-
-# plot_binned(np.log10(N200),(DM200.S-H200.S),'Dark matter','k',nbins=4)
-# plot_binned(np.log10(N500),(DM200.S-H500.S),'Dark matter','C4',nbins=4)
-# plot_binned(np.log10(N1000),(DM200.S-H1000.S),'Dark matter','C6',nbins=4)
-
-# plt.axis([0.9,3.2,-0.12,0.12])
-# plt.ylabel('$S_DM - S_H$')
-# plt.xlabel('$\log(N)$')
-
-
-
-# plt.figure()
-
-# plt.plot((off),(DM200.S-H200.S),'k.')
-# plt.plot((off),(DM500.S-H500.S),'C4.')
-# plt.plot((off),(DM1000.S-H1000.S),'C6.')
-
-
-# plot_binned((gap),(DM200.S-H200.S),'Dark matter','k',nbins=4)
-# plot_binned((gap),(DM500.S-H500.S),'Dark matter','C4',nbins=4)
-# plot_binned((gap),(DM1000.S-H1000.S),'Dark matter','C6',nbins=4)
-
-# plt.axis([0.,1.2,-0.12,0.12])
-
-# plt.ylabel('$S_DM - S_H$')
-# plt.xlabel('$M_{sat}/M_{BCG}$')
-
-
-# plt.figure()
-# plt.hist((H1000.S-DM1000.S)[mn_gap],np.linspace(-0.14,0.14,15),histtype='step',label = 'R < R1000')
-# plt.hist((H1000.S-DM1000.S)[mo_gap],np.linspace(-0.14,0.14,15),histtype='step',label = 'R < R1000')
-
-# plt.figure()
-# plt.hist((H1000.T-DM1000.T)[mn_gap],np.linspace(-0.5,0.5,15),histtype='step',label = 'R < R1000')
-# plt.hist((H1000.T-DM1000.T)[mo_gap],np.linspace(-0.5,0.5,15),histtype='step',label = 'R < R1000')
-
-
-# plt.figure()
-# plt.hist((H1000.q-DM1000.q)[mn2d_gap],np.linspace(-0.15,0.15,15),histtype='step',label = 'R < R1000')
-# plt.hist((H1000.q-DM1000.q)[mo2d_gap],np.linspace(-0.15,0.15,15),histtype='step',label = 'R < R1000')
-
-
 ct30_3D  , t30_3D     = cosangle(H30.a3D  ,DM30.a3D) 
 ct50_3D  , t50_3D     = cosangle(H50.a3D  ,DM50.a3D)
 ct100_3D , t100_3D    = cosangle(H100.a3D ,DM100.a3D)
@@ -159,84 +114,83 @@ limites = [0.02,1.,0.88,1.12]
 
 Rlegend = np.array(['30kpc','50kpc','0.1R$_{500}$','R$_{1000}$','R$_{500}$','R$_{200}$'])
 
+f, ax = plt.subplots(3,1, figsize=(5,12), sharex=True,sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+for ax2 in ax.flatten():
+    [ax2.axvline(x, ls='--', color='k',lw=0.5,alpha=0.5) for x in np.median(R,axis=0)]
 
 # S plot
 
-plt.figure(figsize=(4.5,4))
-plotR_ind(R,SDM_r/SH_r,'k','all')
-plotR_ind(R[mn_gap],(SDM_r/SH_r)[mn_gap],'C0','non-relaxed',style='')
-plotR_ind(R[mo_gap],(SDM_r/SH_r)[mo_gap],'C3','relaxed',style='')
 
-plt.legend(frameon=False,loc=2)
+plotR_ind(R,SDM_r/SH_r,'k','all',ax = ax[1])
+plotR_ind(R[mn_gap],(SDM_r/SH_r)[mn_gap],'C0','non-relaxed',style='',ax = ax[1])
+plotR_ind(R[mo_gap],(SDM_r/SH_r)[mo_gap],'C3','relaxed',style='',ax = ax[1])
 
-plotR_ind(R[mn_off],(SDM_r/SH_r)[mn_off],'C0','all',style='--')
-plotR_ind(R[mn_dv] ,(SDM_r/SH_r)[mn_dv] ,'C0','all',style=':')
+ax[1].legend(frameon=False,loc=3)
+
+plotR_ind(R[mn_off],(SDM_r/SH_r)[mn_off],'C0','all',style='--',ax = ax[1])
+plotR_ind(R[mn_dv] ,(SDM_r/SH_r)[mn_dv] ,'C0','all',style=':',ax = ax[1])
 
 
-plotR_ind(R[mo_off],(SDM_r/SH_r)[mo_off],'C3','all',style='--')
-plotR_ind(R[mo_dv] ,(SDM_r/SH_r)[mo_dv] ,'C3','all',style=':')
+plotR_ind(R[mo_off],(SDM_r/SH_r)[mo_off],'C3','all',style='--',ax = ax[1])
+plotR_ind(R[mo_dv] ,(SDM_r/SH_r)[mo_dv] ,'C3','all',style=':',ax = ax[1])
 
-plt.plot([R.min(),1],[1,1],'C7')
-# plt.xticks(np.median(R,axis=0),Rlegend,fontsize=10.5)
-plt.axis(limites)
+ax[0].plot([R.min(),1],[1,1],'C7')
+ax[0].set_xlim([0.02,1.])
+ax[0].set_ylim([0.88,1.12])
 
-plt.ylabel('$S_{DM}/S_H$')
-plt.xlabel('$R/R_{200}$')
+ax[1].set_ylabel('$S_{DM}/S_H$')
+ax[2].set_xlabel('$R/R_{200}$')
 
-plt.xscale('log')
+ax[0].set_xscale('log')
 plt.savefig(plotspath+'Sr_DM_H.pdf',bbox_inches='tight')
 # T plot
 
-plt.figure(figsize=(4.5,4))
-plotR_ind(R,TDM_r/TH_r,'k','all')
-plotR_ind(R[mn_gap],(TDM_r/TH_r)[mn_gap],'C0','non-relaxed',style='')
-plotR_ind(R[mn_off],(TDM_r/TH_r)[mn_off],'C0','all',style='--')
-plotR_ind(R[mn_dv] ,(TDM_r/TH_r)[mn_dv] ,'C0','all',style=':')
+plotR_ind(R,TDM_r/TH_r,'k','all',ax = ax[0])
+plotR_ind(R[mn_gap],(TDM_r/TH_r)[mn_gap],'C0','non-relaxed',style='',ax = ax[0])
+plotR_ind(R[mn_off],(TDM_r/TH_r)[mn_off],'C0','all',style='--',ax = ax[0])
+plotR_ind(R[mn_dv] ,(TDM_r/TH_r)[mn_dv] ,'C0','all',style=':',ax = ax[0])
                            
-plotR_ind(R[mo_gap],(TDM_r/TH_r)[mo_gap],'C3','relaxed',style='')
-plotR_ind(R[mo_off],(TDM_r/TH_r)[mo_off],'C3','all',style='--')
-plotR_ind(R[mo_dv] ,(TDM_r/TH_r)[mo_dv] ,'C3','all',style=':')
+plotR_ind(R[mo_gap],(TDM_r/TH_r)[mo_gap],'C3','relaxed',style='',ax = ax[0])
+plotR_ind(R[mo_off],(TDM_r/TH_r)[mo_off],'C3','all',style='--',ax = ax[0])
+plotR_ind(R[mo_dv] ,(TDM_r/TH_r)[mo_dv] ,'C3','all',style=':',ax = ax[0])
 
 # plt.xticks(np.median(np.log10(R),axis=0),Rlegend,fontsize=10.5)
-plt.plot([0,5],[1,1],'C7')
+ax[1].plot([0,5],[1,1],'C7')
 
-plt.axis(limites)
-plt.xscale('log')
 
-plt.ylabel('$T_{DM}/T_H$')
-plt.xlabel('$R/R_{200}$')
+ax[0].set_ylabel('$T_{DM}/T_H$')
 
-plt.savefig(plotspath+'Tr_DM_H.pdf',bbox_inches='tight')
 
 # q plot
 
-plt.figure(figsize=(4.5,4))
-plotR_ind(Rp,qDM_r/qH_r,'k','all')
-plotR_ind(Rp[mn2d_gap],(qDM_r/qH_r)[mn2d_gap],'C0','non-relaxed',style='')
-plotR_ind(Rp[mn2d_off],(qDM_r/qH_r)[mn2d_off],'C0','all',style='--')
-plotR_ind(Rp[mn2d_dv] ,(qDM_r/qH_r)[mn2d_dv] ,'C0','all',style=':')                
-plotR_ind(Rp[mo2d_gap],(qDM_r/qH_r)[mo2d_gap],'C3','relaxed',style='')
-plotR_ind(Rp[mo2d_off],(qDM_r/qH_r)[mo2d_off],'C3','all',style='--')
-plotR_ind(Rp[mo2d_dv] ,(qDM_r/qH_r)[mo2d_dv] ,'C3','all',style=':')
+plotR_ind(Rp,qDM_r/qH_r,'k','all',ax = ax[2])
+plotR_ind(Rp[mn2d_gap],(qDM_r/qH_r)[mn2d_gap],'C0','non-relaxed',style='',ax = ax[2])
+plotR_ind(Rp[mn2d_off],(qDM_r/qH_r)[mn2d_off],'C0','all',style='--',ax = ax[2])
+plotR_ind(Rp[mn2d_dv] ,(qDM_r/qH_r)[mn2d_dv] ,'C0','all',style=':',ax = ax[2])      
+plotR_ind(Rp[mo2d_gap],(qDM_r/qH_r)[mo2d_gap],'C3','relaxed',style='',ax = ax[2])
+plotR_ind(Rp[mo2d_off],(qDM_r/qH_r)[mo2d_off],'C3','all',style='--',ax = ax[2])
+plotR_ind(Rp[mo2d_dv] ,(qDM_r/qH_r)[mo2d_dv] ,'C3','all',style=':',ax = ax[2])
 
 
-# plt.xticks(np.median(np.log10(R),axis=0),Rlegend,fontsize=10.5)
-plt.plot([0,5],[1,1],'C7')
+ax[2].plot([0,5],[1,1],'C7')
 
-plt.axis(limites)
 
-plt.ylabel('$q_{DM}/q_H$')
-plt.xlabel('$R/R_{200}$')
-plt.xscale('log')
-plt.savefig(plotspath+'qr_DM_H.pdf',bbox_inches='tight')
+
+ax[2].set_ylabel('$q_{DM}/q_H$')
+
+plt.savefig(plotspath+'shape_DM_H.pdf',bbox_inches='tight')
 
 
 # t3d plot
 
-limites = [0.02,1.,0.,15.]
+limites = [0.02,1.,0.,16.]
 
 f, ax = plt.subplots(2,1, figsize=(6,6), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
+
+for ax2 in ax.flatten():
+    [ax2.axvline(x, ls='--', color='k',lw=0.5,alpha=0.5) for x in np.median(R,axis=0)]
 
 
 plotR_ind(R,t3D,'k','all',ax = ax[0])
@@ -281,87 +235,3 @@ ax[1].set_xlabel('$R/R_{200}$')
 ax[1].set_xscale('log')
 
 plt.savefig(plotspath+'theta_DM_H.pdf',bbox_inches='tight')
-
-'''
-
-plt.figure()
-plt.plot(N200,t200_3D,'.',label='3D')
-plt.plot(n200,t200_2D,'.',label='2D')
-plt.xlabel('N subhalos (R < R200)')
-plt.ylabel(r'$\theta$')
-plt.legend()
-plt.savefig(plotspath+'Nsub_theta_R200.png',bbox_inches='tight')
-
-plt.figure()
-plt.plot(N1000,t1000_3D,'.',label='3D')
-plt.plot(n1000,t1000_2D,'.',label='2D')
-plt.xlabel('N subhalos (R < R1000)')
-plt.ylabel(r'$\theta$')
-plt.legend()
-plt.savefig(plotspath+'Nsub_theta_R1000.png',bbox_inches='tight')
-
-
-plt.figure()
-plt.plot(lM,t200_3D,'.',label='3D')
-plt.plot(lMp,t200_2D,'.',label='2D')
-plt.xlabel('lM(R < R200)')
-plt.ylabel(r'$\theta$')
-plt.legend()
-plt.savefig(plotspath+'lM_theta_R200.png',bbox_inches='tight')
-
-plt.figure()
-plt.plot(lM,t1000_3D,'.',label='3D')
-plt.plot(lMp,t1000_2D,'.',label='2D')
-plt.xlabel('lM(R < R1000)')
-plt.ylabel(r'$\theta$')
-plt.legend()
-plt.savefig(plotspath+'lM_theta_R1000.png',bbox_inches='tight')
-
-
-
-
-
-plt.figure()
-plotR_ind(R[mn_gap],TDM_r[mn_gap],'k','DM')
-plotR_ind(R[mn_gap],TH_r[mn_gap],'C7','H')
-
-plt.figure()
-plotR_ind(R[mo_gap],TDM_r[mo_gap],'k','DM')
-plotR_ind(R[mo_gap],TH_r[mo_gap],'C7','H')
-
-
-plt.figure()
-plotR_ind(Rp,qDM_r,'k','H')
-plotR_ind(Rp,qH_r,'C7','DM')
-
-plt.figure()
-plotR_ind(Rp[mn2d_gap],qDM_r[mn2d_gap],'k','DM')
-plotR_ind(Rp[mn2d_gap],qH_r[mn2d_gap],'C7','H')
-
-plt.figure()
-plotR_ind(Rp[mo2d_gap],qDM_r[mo2d_gap],'k','DM')
-plotR_ind(Rp[mo2d_gap],qH_r[mo2d_gap],'C7','H')
-
-
-plotR(R,SDM_r/SH_r,'$S_{DM}/S_{H}$','SDM-SH_q',plotspath,indicator = 'DV',limitesy=[0.88,1.11])
-plotR(R,SDM_r/SH_r,'$S_{DM}/S_{H}$','SDM-SH_q',plotspath,indicator = 'off',limitesy=[0.88,1.11])
-plotR(R,SDM_r/SH_r,'$S_{DM}/S_{H}$','SDM-SH_q',plotspath,indicator = 'gap',limitesy=[0.88,1.11])
-
-plotR(R,TDM_r/TH_r,'$T_{DM}/T_{H}$','TDM-TH_q',plotspath,indicator='gap',limitesy=[0.6,1.4])
-plotR(R,TDM_r/TH_r,'$T_{DM}/T_{H}$','TDM-TH_q',plotspath,indicator='off',limitesy=[0.6,1.4])
-plotR(R,TDM_r/TH_r,'$T_{DM}/T_{H}$','TDM-TH_q',plotspath,indicator='DV',limitesy=[0.6,1.4])
-
-plotR(Rp,qDM_r/qH_r,'$q_{DM}-q_{H}$','qDM-qH_q',plotspath,indicator='DV',limitesy=[0.88,1.11])
-plotR(Rp,qDM_r/qH_r,'$q_{DM}-q_{H}$','qDM-qH_q',plotspath,indicator='off',limitesy=[0.88,1.11])
-plotR(Rp,qDM_r/qH_r,'$q_{DM}-q_{H}$','qDM-qH_q',plotspath,indicator='gap',limitesy=[0.88,1.11])
-
-plotR(R,t3D,r'$\theta_{3D}$','t3D_DMH_q',plotspath,indicator='DV')
-plotR(R,t3D,r'$\theta_{3D}$','t3D_DMH_q',plotspath,indicator='gap')
-plotR(R,t3D,r'$\theta_{3D}$','t3D_DMH_q',plotspath,indicator='off')
-
-plotR(Rp,t2D,r'$\theta_{2D}$','t2D_DMH_q',plotspath,indicator='DV')
-plotR(Rp,t2D,r'$\theta_{2D}$','t2D_DMH_q',plotspath,indicator='gap')
-plotR(Rp,t2D,r'$\theta_{2D}$','t2D_DMH_q',plotspath,indicator='off')
-
-
-'''

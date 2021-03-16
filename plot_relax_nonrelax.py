@@ -12,6 +12,19 @@ cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
+# plt.style.use('seaborn-whitegrid')
+# plt.style.use('bmh')
+# plt.rcParams['axes.facecolor'] = 'w'
+plt.rcParams['axes.grid'] =True
+plt.rcParams['grid.color'] = '0.8'
+plt.rcParams['grid.linestyle'] = '--'
+plt.rcParams['xtick.top'] = True
+plt.rcParams['xtick.bottom'] = True
+plt.rcParams['ytick.left'] = True
+plt.rcParams['ytick.right'] = True
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+
 matplotlib.rcParams.update({'font.size': 12})
 
 
@@ -48,7 +61,7 @@ ax[1].plot(lMp[mo2d_gap],gap2D[mo2d_gap],'C3o',label='relaxed',alpha=0.7)
 ax[1].plot(lMp[mn2d_gap],gap2D[mn2d_gap],'C0s',label='non-relaxed',alpha=0.7)
 ax[1].set_ylabel(r'$M_{sat}/M_{BCG}$')
 ax[1].set_xlabel(u'$\log(M_{200})$')
-
+ax[1].set_ylim([0.,2.2])
 f.savefig(plotspath+'ratio.pdf',bbox_inches='tight')
 
 f, ax = plt.subplots(2,1, figsize=(4,6), sharex=True)
