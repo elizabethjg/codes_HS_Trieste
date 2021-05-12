@@ -28,8 +28,9 @@ plt.rcParams['ytick.direction'] = 'in'
 
 matplotlib.rcParams.update({'font.size': 14})
 
+plotspath = '../final_plots/'
 
-def plot_fig(x,y,nbins,ax=plt,color = 'C3', style = '',label=''):
+def plot_fig(x,y,nbins,ax=plt,color = 'sienna', style = '',label=''):
                 
         X,q50,q25,q75,mz = binned(x,y,nbins)
         ax.plot(X,q50,color+style,label=label)
@@ -38,18 +39,17 @@ def plot_fig(x,y,nbins,ax=plt,color = 'C3', style = '',label=''):
         ax.fill_between(X,q75,q25,color = color,alpha=0.1)
 
 
-plotspath = '../plots_ICL/'
 
 C = Clusters()
 ICL_ = ICL()
+DM = ICL('dm')
 
 DM1000 = DarkMatter(1000)
 DM500  = DarkMatter(500)
 DM200  = DarkMatter(200)
-
-gx200 = Galaxias(radio=200)
-gx1000 = Galaxias(radio=1000)
-gx500 = Galaxias(radio=500)
+DM30  = DarkMatter(30)
+DM50  = DarkMatter(50)
+DM100  = DarkMatter(100)
 
 st200  = Stars(200)
 st1000 = Stars(1000)
@@ -58,513 +58,96 @@ st30   = Stars(30)
 st50   = Stars(50)
 st100  = Stars(100)
 
-gx_c = Galaxias(tipo='concentradas')
-gx_e = Galaxias(tipo='extendidas')
-
-mall = np.ones(72).astype(bool)
-mall2D = np.ones(72*3).astype(bool)
+lt =  np.array((C.ltime.tolist())*3) 
 
 m = (C.sub == 0)
+micl = (m.tolist()*3)
 
-mp = (m.tolist()*3)
+mo = C.mo2d_gap[micl]
+mn = C.mn2d_gap[micl]
 
-yaxis = np.zeros((len(DM200.a2D),2))
-yaxis[:,1] = 1.
+qicl = ICL_.qicl
+qbcg = ICL_.qbcg
 
-PA200 = cosangle2(DM200.a2D[mp],yaxis[mp])[1]
-PA500 = cosangle2(DM500.a2D[mp],yaxis[mp])[1]
-PA1000 = cosangle2(DM1000.a2D[mp],yaxis[mp])[1]
+qdm = DM.qicl
+qbcg_dm = DM.qbcg
 
-PA200st = cosangle2(st200.a2D[mp],yaxis[mp])[1]
-PA500st = cosangle2(st500.a2D[mp],yaxis[mp])[1]
-PA1000st = cosangle2(st1000.a2D[mp],yaxis[mp])[1]
+mbdm = DM.Rbcg > 0.
+mb   = ICL_.Rbcg > 0.
 
-r200  = C.Rp[mp,-1]
-r500  = C.Rp[mp,-2]
-r1000 = C.Rp[mp,-3]
+r200  = C.Rp[micl,-1]
 
-mo = C.mo2d_gap[mp]
 
+t_dmp = cosangle(DM.a2Dicl,ICL_.a2Dicl)[1]
+t_dmp_bcg = cosangle(DM.a2Dbcg,ICL_.a2Dicl)[1]
 
-p    = ['xy','xz','yz']
+t_dm = cosangle(ICL_.a2Dicl,DM1000.a2D[micl])[1]
+t_dm_bcg = cosangle(ICL_.a2Dicl,DM100.a2D[micl])[1]
 
 
 
-for d in np.arange(29):
+#####################
 
-    plt.figure()
-
-    D = [d,d+29,d+58]
-    
-    qdm = DM200.q[mp][D]
-
-    if not all(np.diff(ICL_.D[D]) == 0):
-        print('something wrong')
-
-    for i in range(3): 
-    
-        j = D[i]
-    
-        
-        dif1000 = abs(ICL_.PA - PA1000)[j]
-        dif1000[dif1000 > 90.] = 180. - dif1000[dif1000 > 90.]    
-    
-        dif500 = abs(ICL_.PA - PA500)[j]
-        dif500[dif500 > 90.] = 180. - dif500[dif500 > 90.]    
-    
-        dif200 = abs(ICL_.PA - PA200)[j]
-        dif200[dif200 > 90.] = 180. - dif200[dif200 > 90.]    
-        
-        plt.plot(ICL_.a[j]/r200[j],dif1000,'C'+str(i+3)+'-',label = p[i]+' '+str(qdm[i]))
-        plt.plot(ICL_.a[j]/r200[j],dif500,'C'+str(i+3)+'--')
-        plt.plot(ICL_.a[j]/r200[j],dif200,'C'+str(i+3)+':')
-
-        plt.legend(loc=1)
-
-        # if mo[j]:
-            # plt.plot(ICL_.a[j]/r200[j],dif1000,'C3o')
-            # plt.plot(ICL_.a[j]/r200[j],dif500,'C'+str(i+5)+'o')
-            # plt.plot(ICL_.a[j]/r200[j],dif200,'C'+str(i+5)+'o')
-
-    
-    
-    plt.xlabel('$R/R_{200}$')
-    plt.ylabel(r'$\theta_{DM}$')
-    
-    plt.axis([0,0.8,0,90])
-    
-    plt.savefig(plotspath+'D'+str(int(ICL_.D[d]))+'.png')
-
-
-
-plt.figure()
-for j in np.arange(87): 
-    dif = abs(ICL_.PA - PA1000)[j]
-    dif[dif > 90.] = 180. - dif[dif > 90.]    
-    if mo[j]:
-        plt.plot(ICL_.a[j]/r200[j],dif,'r',alpha = 0.5)
-    else:
-        plt.plot(ICL_.a[j]/r200[j],dif,'C0',alpha = 0.5)
-
-plt.xlabel('$R/R_{200}$')
-plt.ylabel(r'$\theta_{R1000}$')
-plt.savefig(plotspath+'align_R1000.png')
-
-
-plt.figure()
-for j in np.arange(87): 
-    dif = abs(ICL_.PA - PA500)[j]
-    dif[dif > 90.] = 180. - dif[dif > 90.]    
-    if mo[j]:
-        plt.plot(ICL_.a[j]/r200[j],dif,'r',alpha = 0.5)
-    else:
-        plt.plot(ICL_.a[j]/r200[j],dif,'C0',alpha = 0.5)
-
-plt.xlabel('$R/R_{200}$')
-plt.ylabel(r'$\theta_{R500}$')
-plt.savefig(plotspath+'align_R500.png')
-
-plt.figure()
-for j in np.arange(87): 
-    dif = abs(ICL_.PA - PA200)[j]
-    dif[dif > 90.] = 180. - dif[dif > 90.]    
-    if mo[j]:
-        plt.plot(ICL_.a[j]/r200[j],dif,'r',alpha = 0.5)
-    else:
-        plt.plot(ICL_.a[j]/r200[j],dif,'C0',alpha = 0.5)
-
-plt.xlabel('$R/R_{200}$')
-plt.ylabel(r'$\theta_{R200}$')
-plt.savefig(plotspath+'align_R200.png')
-
-
-rs_o    = np.array([])
-t200_o  = np.array([])
-t500_o  = np.array([])
-t1000_o = np.array([])
-
-rs_n    = np.array([])
-t200_n  = np.array([])
-t500_n  = np.array([])
-t1000_n = np.array([])
-
-for j in np.arange(87):
-    
-    dif1000 = abs(ICL_.PA - PA1000)[j]
-    dif1000[dif1000 > 90.] = 180. - dif1000[dif1000 > 90.]    
-
-    dif500 = abs(ICL_.PA - PA500)[j]
-    dif500[dif500 > 90.] = 180. - dif500[dif500 > 90.]    
-
-    dif200 = abs(ICL_.PA - PA200)[j]
-    dif200[dif200 > 90.] = 180. - dif200[dif200 > 90.]    
-    
-    
-    if mo[j]:
-        rs_o = np.append(rs_o,(ICL_.a/r200)[j])
-        t200_o = np.append(t200_o,dif200)
-        t500_o = np.append(t500_o,dif500)
-        t1000_o = np.append(t1000_o,dif1000)
-    else:
-        rs_n = np.append(rs_n,(ICL_.a/r200)[j])
-        t200_n = np.append(t200_n,dif200)
-        t500_n = np.append(t500_n,dif500)
-        t1000_n = np.append(t1000_n,dif1000)
-
-
-f, ax = plt.subplots(1,2, figsize=(12,5), sharex=True,sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-    
-plot_fig(np.log10(rs_o),t200_o,6,ax=ax[0],style=':')
-plot_fig(np.log10(rs_o),t500_o,6,ax=ax[0],style='--')
-plot_fig(np.log10(rs_o),t1000_o,6,ax=ax[0],style='-')
-
-plot_fig(np.log10(rs_n),t200_n,6,color='C0',ax=ax[1],style=':')
-plot_fig(np.log10(rs_n),t500_n,6,color='C0',ax=ax[1],style='--')
-plot_fig(np.log10(rs_n),t1000_n,6,color='C0',ax=ax[1],style='-')
-
-ax[0].set_xlabel('$\log(R/R200)$')
-ax[1].set_xlabel('$\log(R/R200)$')
-ax[0].set_ylabel(r'$\theta_{DM}$')
-
-plt.savefig(plotspath+'align_medians_gap.png')
-
-
-rs_o    = np.array([])
-t200_o  = np.array([])
-t500_o  = np.array([])
-t1000_o = np.array([])
-
-rs_n    = np.array([])
-t200_n  = np.array([])
-t500_n  = np.array([])
-t1000_n = np.array([])
-
-for j in np.arange(87):
-    
-    dif1000 = abs(ICL_.PA - PA1000st)[j]
-    dif1000[dif1000 > 90.] = 180. - dif1000[dif1000 > 90.]    
-
-    dif500 = abs(ICL_.PA - PA500st)[j]
-    dif500[dif500 > 90.] = 180. - dif500[dif500 > 90.]    
-
-    dif200 = abs(ICL_.PA - PA200st)[j]
-    dif200[dif200 > 90.] = 180. - dif200[dif200 > 90.]    
-    
-    
-    if mo[j]:
-        rs_o = np.append(rs_o,(ICL_.a/r200)[j])
-        t200_o = np.append(t200_o,dif200)
-        t500_o = np.append(t500_o,dif500)
-        t1000_o = np.append(t1000_o,dif1000)
-    else:
-        rs_n = np.append(rs_n,(ICL_.a/r200)[j])
-        t200_n = np.append(t200_n,dif200)
-        t500_n = np.append(t500_n,dif500)
-        t1000_n = np.append(t1000_n,dif1000)
-
-
-f, ax = plt.subplots(1,2, figsize=(12,5), sharex=True,sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-    
-plot_fig(np.log10(rs_o),t200_o,5,ax=ax[0],style=':')
-plot_fig(np.log10(rs_o),t500_o,5,ax=ax[0],style='--')
-plot_fig(np.log10(rs_o),t1000_o,5,ax=ax[0],style='-')
-
-plot_fig(np.log10(rs_n),t200_n,5,color='C0',ax=ax[1],style=':')
-plot_fig(np.log10(rs_n),t500_n,5,color='C0',ax=ax[1],style='--')
-plot_fig(np.log10(rs_n),t1000_n,5,color='C0',ax=ax[1],style='-')
-
-ax[0].set_xlabel('$\log(R/R200)$')
-ax[1].set_xlabel('$\log(R/R200)$')
-ax[0].set_ylabel(r'$\theta \star}$')
-
-plt.savefig(plotspath+'align_medians_stars_gap.png')
-
-#######################
-
-for d in np.arange(29):
-
-    plt.figure()
-
-    D = [d,d+29,d+58]
-    
-    qdm = DM200.q[mp][D]
-
-    if not all(np.diff(ICL_.D[D]) == 0):
-        print('something wrong')
-
-    for i in range(3): 
-    
-        j = D[i]
-    
-        
-        dif1000 =  ICL_.q[j]/DM1000.q[mp][j]
-        dif500  =  ICL_.q[j]/DM500.q[mp][j]
-        dif200  =  ICL_.q[j]/DM200.q[mp][j]
-
-        
-        plt.plot(ICL_.a[j]/r200[j],dif1000,'C'+str(i+3)+'-',label = p[i]+' '+str(qdm[i]))
-        plt.plot(ICL_.a[j]/r200[j],dif500,'C'+str(i+3)+'--')
-        plt.plot(ICL_.a[j]/r200[j],dif200,'C'+str(i+3)+':')
-
-        plt.legend(loc=1)
-
-        # if mo[j]:
-            # plt.plot(ICL_.a[j]/r200[j],dif1000,'C3o')
-            # plt.plot(ICL_.a[j]/r200[j],dif500,'C'+str(i+5)+'o')
-            # plt.plot(ICL_.a[j]/r200[j],dif200,'C'+str(i+5)+'o')
-
-    
-    
-    plt.xlabel('$R/R_{200}$')
-    plt.ylabel(r'$q_{ICL}/q_{DM}$')
-    
-    plt.axis([0,0.8,0,2])
-    
-    plt.savefig(plotspath+'D'+str(int(ICL_.D[d]))+'_q.png')
-
-
-
-plt.figure()
-for j in np.arange(87): 
-    dif = ICL_.q[j]/DM1000.q[mp][j]
-
-    if mo[j]:
-        plt.plot(ICL_.a[j]/r200[j],dif,'r',alpha = 0.5)
-    else:
-        plt.plot(ICL_.a[j]/r200[j],dif,'C0',alpha = 0.5)
-
-plt.xlabel('$R/R_{200}$')
-plt.ylabel(r'$q_{ICL}/q_{DM}$')
-plt.savefig(plotspath+'ratio_q_R1000.png')
-
-
-plt.figure()
-for j in np.arange(87): 
-
-    dif = ICL_.q[j]/DM500.q[mp][j]
-
-    if mo[j]:
-        plt.plot(ICL_.a[j]/r200[j],dif,'r',alpha = 0.5)
-    else:
-        plt.plot(ICL_.a[j]/r200[j],dif,'C0',alpha = 0.5)
-
-plt.xlabel('$R/R_{200}$')
-plt.ylabel(r'$q_{ICL}/q_{DM}$')
-plt.savefig(plotspath+'ratio_q_R500.png')
-
-plt.figure()
-for j in np.arange(87): 
-    
-    dif = ICL_.q[j]/DM200.q[mp][j]
-        
-    if mo[j]:
-        plt.plot(ICL_.a[j]/r200[j],dif,'r',alpha = 0.5)
-    else:
-        plt.plot(ICL_.a[j]/r200[j],dif,'C0',alpha = 0.5)
-
-plt.xlabel('$R/R_{200}$')
-plt.ylabel(r'$q_{ICL}/q_{DM}$')
-plt.savefig(plotspath+'ratio_q_R200.png')
-
-
-rs_o    = np.array([])
-qicl    = np.array([])
-eqicl    = np.array([])
-t200_o  = np.array([])
-t500_o  = np.array([])
-t1000_o = np.array([])
-
-rs_n    = np.array([])
-t200_n  = np.array([])
-t500_n  = np.array([])
-t1000_n = np.array([])
-
-for j in np.arange(87):
-    
-    dif200  = ICL_.q[j]/DM200.q[mp][j]    
-    dif500  = ICL_.q[j]/DM500.q[mp][j]    
-    dif1000 = ICL_.q[j]/DM1000.q[mp][j]    
-    
-    qicl    = np.append(qicl,ICL_.q[j][-1])
-    eqicl    = np.append(qicl,ICL_.eq[j][-1])
-    
-    if mo[j]:
-        rs_o = np.append(rs_o,(ICL_.a/r200)[j])
-        t200_o = np.append(t200_o,dif200)
-        t500_o = np.append(t500_o,dif500)
-        t1000_o = np.append(t1000_o,dif1000)
-    else:
-        rs_n = np.append(rs_n,(ICL_.a/r200)[j])
-        t200_n = np.append(t200_n,dif200)
-        t500_n = np.append(t500_n,dif500)
-        t1000_n = np.append(t1000_n,dif1000)
-
-
-f, ax = plt.subplots(1,2, figsize=(12,5), sharex=True,sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-    
-plot_fig(np.log10(rs_o),t200_o,6,ax=ax[0],style=':')
-plot_fig(np.log10(rs_o),t500_o,6,ax=ax[0],style='--')
-plot_fig(np.log10(rs_o),t1000_o,6,ax=ax[0],style='-')
-
-plot_fig(np.log10(rs_n),t200_n,6,color='C0',ax=ax[1],style=':')
-plot_fig(np.log10(rs_n),t500_n,6,color='C0',ax=ax[1],style='--')
-plot_fig(np.log10(rs_n),t1000_n,6,color='C0',ax=ax[1],style='-')
-
-ax[0].set_xlabel('$\log(R/R200)$')
-ax[1].set_xlabel('$\log(R/R200)$')
-ax[0].set_ylabel(r'$q_{ICL}/q_{DM}$')
-
-ax[0].set_ylim([0.5,1.2])
-
-plt.savefig(plotspath+'ratio_q_gap.png')
-
-# with stars
-
-maxa  = np.array([])
-maxas200 = np.array([])
-maxas500 = np.array([])
-maxas1000 = np.array([])
-
-rs_o    = np.array([])
-t200_o  = np.array([])
-t500_o  = np.array([])
-t1000_o = np.array([])
-
-rs_n    = np.array([])
-t200_n  = np.array([])
-t500_n  = np.array([])
-t1000_n = np.array([])
-
-for j in np.arange(87):
-    
-    maxas200  = np.append(maxas200,(ICL_.a/r200)[j][-1])
-    maxas500  = np.append(maxas500,(ICL_.a/r500)[j][-1])
-    maxas1000 = np.append(maxas1000,(ICL_.a/r1000)[j][-1])
-    maxa  = np.append(maxa,ICL_.a[j][-1])
-    
-    dif200  = ICL_.q[j]/st200.q[mp][j]    
-    dif500  = ICL_.q[j]/st500.q[mp][j]    
-    dif1000 = ICL_.q[j]/st1000.q[mp][j]    
-    
-    if mo[j]:
-        rs_o = np.append(rs_o,(ICL_.a/r200)[j])
-        t200_o = np.append(t200_o,dif200)
-        t500_o = np.append(t500_o,dif500)
-        t1000_o = np.append(t1000_o,dif1000)
-    else:
-        rs_n = np.append(rs_n,(ICL_.a/r200)[j])
-        t200_n = np.append(t200_n,dif200)
-        t500_n = np.append(t500_n,dif500)
-        t1000_n = np.append(t1000_n,dif1000)
-
-
-f, ax = plt.subplots(1,2, figsize=(12,5), sharex=True,sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-    
-plot_fig(np.log10(rs_o),t200_o,6,ax=ax[0],style=':')
-plot_fig(np.log10(rs_o),t500_o,6,ax=ax[0],style='--')
-plot_fig(np.log10(rs_o),t1000_o,6,ax=ax[0],style='-')
-
-plot_fig(np.log10(rs_n),t200_n,6,color='C0',ax=ax[1],style=':')
-plot_fig(np.log10(rs_n),t500_n,6,color='C0',ax=ax[1],style='--')
-plot_fig(np.log10(rs_n),t1000_n,6,color='C0',ax=ax[1],style='-')
-
-ax[0].set_ylim([0.5,1.2])
-
-ax[0].set_xlabel('$\log(R/R200)$')
-ax[1].set_xlabel('$\log(R/R200)$')
-ax[0].set_ylabel(r'$q_{ICL}/q_\star$')
-plt.savefig(plotspath+'ratio_q_stars_gap.png')
-
-
-plt.figure()
-plt.hist(maxa,histtype='step')
-plt.xlabel('R [kpc]')
-plt.ylabel('N')
-plt.savefig(plotspath+'Rmax_dist.png')
-
-plt.figure()
-plt.hist(maxas200,np.linspace(0.1,1.2,15),histtype='step')
-plt.xlabel('R/R200')
-plt.ylabel('N')
-plt.savefig(plotspath+'Rmax_dist_scaled200.png')
-
-plt.figure()
-plt.hist(maxas500,np.linspace(0.1,1.2,15),histtype='step')
-plt.xlabel('R/R500')
-plt.ylabel('N')
-plt.savefig(plotspath+'Rmax_dist_scaled500.png')
-
-plt.figure()
-plt.hist(maxas1000,np.linspace(0.1,1.2,15),histtype='step')
-plt.xlabel('R/R1000')
-plt.ylabel('N')
-plt.savefig(plotspath+'Rmax_dist_scaled1000.png')
-
-
-f, ax = plt.subplots(3,2, figsize=(12,12), sharey=True,sharex=True)
+f, ax = plt.subplots(2,1, figsize=(5,7), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 
-ax[0,1].text(0.85,0.3,r'$R < R_{200}$')
-ax[1,1].text(0.85,0.3,r'$R < R_{500}$')
-ax[2,1].text(0.85,0.3,r'$R < R_{1000}$')
+plot_fig(lt[micl],qicl/qdm,5,ax=ax[0],color='teal')
+plot_fig(lt[micl],qicl/DM1000.q[micl],5,ax=ax[0],color='C2',style='--')
 
-ax[0,0].plot(0.76*DM200.q[mp][mo],qicl[mo],'C3.')
-ax[1,0].plot(0.76*DM500.q[mp][mo],qicl[mo],'C3.')
-ax[2,0].plot(0.76*DM1000.q[mp][mo],qicl[mo],'C3.')
-ax[0,0].plot(0.76*DM200.q[mp][~mo],qicl[~mo],'C0.')
-ax[1,0].plot(0.76*DM500.q[mp][~mo],qicl[~mo],'C0.')
-ax[2,0].plot(0.76*DM1000.q[mp][~mo],qicl[~mo],'C0.')
+plot_fig(lt[micl],t_dmp,5,ax=ax[1],color='teal')
+plot_fig(lt[micl],t_dm,5,ax=ax[1],color='C2',style='--')
+
+    
+ax[1].set_xlabel('look-back time [Gyr]')
 
 
-# ax[0,0].errorbar(DM200.q[mp][mo],qicl[mo],yerr=qicl[mo],ecolor='C3',fmt='none')
-# ax[1,0].errorbar(DM500.q[mp][mo],qicl[mo],yerr=qicl[mo],ecolor='C3',fmt='none')
-# ax[2,0].errorbar(DM1000.q[mp][mo],qicl[mo],yerr=qicl[mo],ecolor='C3',fmt='none')
-# ax[0,0].errorbar(DM200.q[mp][~mo],qicl[~mo],yerr=qicl[~mo],ecolor='C0',fmt='none')
-# ax[1,0].errorbar(DM500.q[mp][~mo],qicl[~mo],yerr=qicl[~mo],ecolor='C0',fmt='none')
-# ax[2,0].errorbar(DM1000.q[mp][~mo],qicl[~mo],yerr=qicl[~mo],ecolor='C0',fmt='none')
+ax[0].set_ylabel('$q_{ICL}/q_{DM}$')
+ax[1].set_ylabel(r'$\theta_{ICL}^{DM}$')
+
+plt.savefig(plotspath+'ICL_time.pdf',bbox_inches='tight')
+
+#####################
+
+f, ax = plt.subplots(1,2, figsize=(7,5),sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
 
 
-ax[0,1].plot(0.86*st200.q[mp][mo],qicl[mo],'C3.')
-ax[1,1].plot(0.86*st500.q[mp][mo],qicl[mo],'C3.')
-ax[2,1].plot(0.86*st1000.q[mp][mo],qicl[mo],'C3.')
-ax[0,1].plot(0.86*st200.q[mp][~mo],qicl[~mo],'C0.')
-ax[1,1].plot(0.86*st500.q[mp][~mo],qicl[~mo],'C0.')
-ax[2,1].plot(0.86*st1000.q[mp][~mo],qicl[~mo],'C0.')
+ax[0].hist((qicl/qdm)[C.mo2d_gap[micl]],np.linspace(0.5,1,6,10),color='sienna',histtype='step')
+ax[0].hist((qicl/qdm)[C.mn2d_gap[micl]],np.linspace(0.5,1,6,10),color='C0',histtype='step')
 
-# ax[0,1].errorbar(st200.q[mp][mo],qicl[mo],yerr=qicl[mo],ecolor='C3',fmt='none')
-# ax[1,1].errorbar(st500.q[mp][mo],qicl[mo],yerr=qicl[mo],ecolor='C3',fmt='none')
-# ax[2,1].errorbar(st1000.q[mp][mo],qicl[mo],yerr=qicl[mo],ecolor='C3',fmt='none')
-# ax[0,1].errorbar(st200.q[mp][~mo],qicl[~mo],yerr=qicl[~mo],ecolor='C0',fmt='none')
-# ax[1,1].errorbar(st500.q[mp][~mo],qicl[~mo],yerr=qicl[~mo],ecolor='C0',fmt='none')
-# ax[2,1].errorbar(st1000.q[mp][~mo],qicl[~mo],yerr=qicl[~mo],ecolor='C0',fmt='none')
-
-ax[0,0].plot([0,1],[0,1],'C7--')
-ax[1,0].plot([0,1],[0,1],'C7--')
-ax[2,0].plot([0,1],[0,1],'C7--')
-ax[0,0].plot([0,1],[0,1],'C7--')
-ax[1,0].plot([0,1],[0,1],'C7--')
-ax[2,0].plot([0,1],[0,1],'C7--')
-ax[0,1].plot([0,1],[0,1],'C7--')
-ax[1,1].plot([0,1],[0,1],'C7--')
-ax[2,1].plot([0,1],[0,1],'C7--')
-ax[0,1].plot([0,1],[0,1],'C7--')
-ax[1,1].plot([0,1],[0,1],'C7--')
-ax[2,1].plot([0,1],[0,1],'C7--')
+ax[1].hist(t_dmp[C.mo2d_gap[micl]],np.linspace(0,70,10),color='sienna',histtype='step')
+ax[1].hist(t_dmp[C.mn2d_gap[micl]],np.linspace(0,70,10),color='C0',histtype='step')
+    
+ax[1].set_ylabel('$N$')
 
 
-ax[0,1].set_xlim([0.26,1.0])
-ax[0,1].set_ylim([0.26,1.0])
+ax[0].set_xlabel('$q_{ICL}/q_{DM}$')
+ax[1].set_xlabel(r'$\theta_{ICL}^{DM}$')
 
-ax[2,0].set_xlabel('$q_{DM}$')
-ax[2,1].set_xlabel('$q_{\star}$')
+plt.savefig(plotspath+'ICL_dist.pdf',bbox_inches='tight')
 
-ax[0,0].set_ylabel('$q_{ICL}$')
-ax[1,0].set_ylabel('$q_{ICL}$')
-ax[2,0].set_ylabel('$q_{ICL}$')
 
-f.savefig(plotspath+'qicl_q_scaled.png')
+'''
+header = 'D \n proj: 0 xy, 1 xz, 2 yz \n (5) BCG properties: R [kpc], q=b/a, a_11, a_12, PA \n (5) same for ICL'
+
+
+out = np.array([ICL_.D,ICL_.proj,
+                ICL_.Rbcg*r200,ICL_.qbcg,
+                ICL_.a2Dbcg[:,0],ICL_.a2Dbcg[:,1],ICL_.PAbcg,
+                ICL_.Ricl*r200,ICL_.qicl,
+                ICL_.a2Dicl[:,0],ICL_.a2Dicl[:,1],ICL_.PAicl])
+
+out[np.isnan(out)] = -99.
+np.savetxt('../ISOPHOTES_stars.list', out.T,fmt=['%5i']*2+['%7.1f']+['%12.5f']*4+['%7.1f']+['%12.5f']*4,header = header)
+
+out_DM = np.array([DM.D,DM.proj,
+                DM.Rbcg*r200,DM.qbcg,
+                DM.a2Dbcg[:,0],DM.a2Dbcg[:,1],DM.PAbcg,
+                DM.Ricl*r200,DM.qicl,
+                DM.a2Dicl[:,0],DM.a2Dicl[:,1],DM.PAicl])
+
+out_DM[np.isnan(out_DM)] = -99.
+
+np.savetxt('../ISOPHOTES_DM.list', out_DM.T,fmt=['%5i']*2+['%7.1f']+['%12.5f']*4+['%7.1f']+['%12.5f']*4,header = header)
+'''

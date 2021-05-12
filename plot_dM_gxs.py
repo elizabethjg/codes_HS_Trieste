@@ -23,7 +23,7 @@ plt.rcParams['ytick.right'] = True
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
-matplotlib.rcParams.update({'font.size': 14})
+matplotlib.rcParams.update({'font.size': 11})
 
 
 
@@ -58,9 +58,11 @@ r200 = Random()
 r1000 = Random(1000)
 r500 = Random(500)
 
-gx200 = Galaxias(radio=200)
-gx1000 = Galaxias(radio=1000)
-gx500 = Galaxias(radio=500)
+mcut = True
+
+gx200 = Galaxias(radio=200,masa_cut=mcut)
+gx1000 = Galaxias(radio=1000,masa_cut=mcut)
+gx500 = Galaxias(radio=500,masa_cut=mcut)
 
 gx_c = Galaxias(tipo='concentradas')
 gx_e = Galaxias(tipo='extendidas')
@@ -77,8 +79,382 @@ mcp    = np.array((mc.tolist())*3)
 me     = gx_e.N > 9
 mep    = np.array((me.tolist())*3)
 
+cgall = CorrelR(Galaxias,DarkMatter)
+cgce = CorrelR(DarkMatter,DarkMatter)
+
+tgx  = cgall.t3D
+tgxp = cgall.t2D
+
+tgxc  = cgce.t3D_gxc
+tgxe  = cgce.t3D_gxe
+
+tgxcp  = cgce.t2D_gxc
+tgxep  = cgce.t2D_gxe
+
+# 2D RESULTS
+
+f, ax = plt.subplots(2,2, figsize=(9.4,6))
+# f.subplots_adjust(hspace=0,wspace=0)
+
+ax = ax.T
+
+plot_fig(np.log10(gx1000.n),gx1000.q/DM1000.q,
+         np.log10(r1000.n),r1000.q50/DM1000.q,r1000.q75/DM1000.q,
+         r1000.q25/DM1000.q,4,ax[0,0],m1000p,'-',lyc='$R < R_{1000}$')
+
+plot_fig(np.log10(gx500.n),gx500.q/DM500.q,
+         np.log10(r500.n),r500.q50/DM500.q,r500.q75/DM500.q,
+         r500.q25/DM500.q,5,ax[0,0],m500p,'--',lyc='$R < R_{500}$')
+
+plot_fig(np.log10(gx200.n),gx200.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,0],mall2D,'-.',lyc='$R < R_{200}$')
+
+ax[0,0].legend(frameon=False)
+         
+#--------------         
+
+plot_fig(np.log10(gx1000.n),tgxp.T[-3],
+         np.log10(r1000.n),r1000.t2Ddm50,r1000.t2Ddm75,
+         r1000.t2Ddm25,4,ax[1,0],m1000p,'-')
+
+plot_fig(np.log10(gx500.n),tgxp.T[-2],
+         np.log10(r500.n),r500.t2Ddm50,r500.t2Ddm75,
+         r500.t2Ddm25,5,ax[1,0],m500p,'--')
+
+plot_fig(np.log10(gx200.n),tgxp.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,0],mall2D,'-.')
 
 
+# ----------------
+
+plot_fig(np.log10(gx_c.n),gx_c.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,1],mcp,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.n),gx_e.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,1],mep,'--',ly='extended')         
+
+ax[0,1].legend(frameon=False)         
+         
+plot_fig(np.log10(gx_c.n),tgxcp.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,1],mcp,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.n),tgxep.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,1],mep,'--',ly='extended')         
+
+ax[0,0].set_xlim([1.0,2.8])
+ax[1,0].set_xlim([1.0,2.8])
+ax[0,1].set_xlim([1.0,2.8])
+ax[1,1].set_xlim([1.0,2.8])
+
+
+ax[1,1].set_ylim([0.,50])
+ax[1,0].set_ylim([0.,50])
+ax[0,0].set_ylim([0.55,1.2])
+ax[0,1].set_ylim([0.55,1.2])
+
+ax[0,1].set_yticklabels([])
+ax[1,1].set_yticklabels([])
+
+
+ax[1,0].set_xlabel('$\log(N)$')
+ax[1,1].set_xlabel('$\log(N)$')
+ax[0,0].set_xlabel('$\log(N)$')
+ax[0,1].set_xlabel('$\log(N)$')
+
+ax[0,0].set_ylabel('$q/q_{DM}$')
+ax[1,0].set_ylabel(r'$\theta^*$')
+
+ax[0,1].set_ylabel('$q/q_{DM}$')
+ax[1,1].set_ylabel(r'$\theta^*$')
+
+f.savefig(plotspath+'shape_galaxies_2D.pdf',bbox_inches='tight')
+
+# 3D RESULTS
+
+f, ax = plt.subplots(2,3, figsize=(14,6))
+# f.subplots_adjust(hspace=0,wspace=0)
+ax = ax.T
+
+
+plot_fig(np.log10(gx1000.N),gx1000.T/DM1000.T,
+         np.log10(r1000.N),r1000.T50/DM1000.T,r1000.T75/DM1000.T,
+         r1000.T25/DM1000.T,5,ax[0,0],m1000,'-')
+
+plot_fig(np.log10(gx500.N),gx500.T/DM500.T,
+         np.log10(r500.N),r500.T50/DM500.T,r500.T75/DM500.T,
+         r500.T25/DM500.T,5,ax[0,0],m500,'--')
+
+plot_fig(np.log10(gx200.N),gx200.T/DM200.T,
+         np.log10(r200.N),r200.T50/DM200.T,r200.T75/DM200.T,
+         r200.T25/DM200.T,5,ax[0,0],mall,'-.')
+
+         
+plot_fig(np.log10(gx1000.N),gx1000.S/DM1000.S,
+         np.log10(r1000.N),r1000.S50/DM1000.S,r1000.S75/DM1000.S,
+         r1000.S25/DM1000.S,6,ax[1,0],m1000,'-',lyc='$R < R_{1000}$')
+
+plot_fig(np.log10(gx500.N),gx500.S/DM500.S,
+         np.log10(r500.N),r500.S50/DM500.S,r500.S75/DM500.S,
+         r500.S25/DM500.S,6,ax[1,0],m500,'--',lyc='$R < R_{500}$')
+
+plot_fig(np.log10(gx200.N),gx200.S/DM200.S,
+         np.log10(r200.N),r200.S50/DM200.S,r200.S75/DM200.S,
+         r200.S25/DM200.S,6,ax[1,0],mall,'-.',lyc='$R < R_{200}$')
+ax[1,0].legend(frameon=False)
+         
+#--------------         
+
+plot_fig(np.log10(gx1000.N),tgx.T[-3],
+         np.log10(r1000.N),r1000.tdm50,r1000.tdm75,
+         r1000.tdm25,4,ax[2,0],m1000,'-',lyc='$R < R_{1000}$')
+
+plot_fig(np.log10(gx500.N),tgx.T[-2],
+         np.log10(r500.N),r500.tdm50,r500.tdm75,
+         r500.tdm25,5,ax[2,0],m500,'--',lyc='$R < R_{500}$')
+
+plot_fig(np.log10(gx200.N),tgx.T[-1],
+         np.log10(r200.N),r200.tdm50,r200.tdm75,
+         r200.tdm25,5,ax[2,0],mall,'-.',lyc='$R < R_{200}$')
+
+
+# ----------------
+
+plot_fig(np.log10(gx_c.N),gx_c.T/DM200.T,
+         np.log10(r200.N),r200.T50/DM200.T,r200.T75/DM200.T,
+         r200.T25/DM200.T,5,ax[0,1],mc,'-')
+
+plot_fig(np.log10(gx_e.N),gx_e.T/DM200.T,
+         np.log10(r200.N),r200.T50/DM200.T,r200.T75/DM200.T,
+         r200.T25/DM200.T,5,ax[0,1],me,'--')
+
+         
+plot_fig(np.log10(gx_c.N),gx_c.S/DM200.S,
+         np.log10(r200.N),r200.S50/DM200.S,r200.S75/DM200.S,
+         r200.S25/DM200.S,5,ax[1,1],mc,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.N),gx_e.S/DM200.S,
+         np.log10(r200.N),r200.S50/DM200.S,r200.S75/DM200.S,
+         r200.S25/DM200.S,5,ax[1,1],me,'--',ly='extended')       
+
+ax[1,1].legend(frameon=False)         
+         
+plot_fig(np.log10(gx_c.N),tgxc.T[-1],
+         np.log10(r200.N),r200.tdm50,r200.tdm75,
+         r200.tdm25,5,ax[2,1],mc,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.N),tgxe.T[-1],
+         np.log10(r200.N),r200.tdm50,r200.tdm75,
+         r200.tdm25,5,ax[2,1],me,'--',ly='extended')
+      
+
+ax[0,0].set_xlim([1.0,2.8])
+ax[1,0].set_xlim([1.0,2.8])
+ax[2,0].set_xlim([1.0,2.8])
+ax[0,1].set_xlim([1.0,2.8])
+ax[1,1].set_xlim([1.0,2.8])
+ax[2,1].set_xlim([1.0,2.8])
+
+
+
+ax[2,1].set_ylim([0.,57])
+ax[2,0].set_ylim([0.,57])
+
+ax[0,0].set_ylim([0.6,1.8])
+ax[0,1].set_ylim([0.6,1.8])
+
+ax[1,0].set_ylim([0.35,1.1])
+ax[1,1].set_ylim([0.35,1.1])
+
+
+# ax[0,1].set_yticklabels([])
+# ax[1,1].set_yticklabels([])
+# ax[2,1].set_yticklabels([])
+
+
+ax[1,0].set_xlabel('$\log(N)$')
+ax[1,1].set_xlabel('$\log(N)$')
+
+ax[0,0].set_xlabel('$\log(N)$')
+ax[0,1].set_xlabel('$\log(N)$')
+
+ax[0,0].set_ylabel('$T/T_{DM}$')
+ax[1,0].set_ylabel('$S/S_{DM}$')
+ax[2,0].set_ylabel(r'$\theta$')
+
+ax[0,1].set_ylabel('$T/T_{DM}$')
+ax[1,1].set_ylabel('$S/S_{DM}$')
+ax[2,1].set_ylabel(r'$\theta$')
+
+ax[2,0].set_xlabel('$\log(N)$')
+ax[2,1].set_xlabel('$\log(N)$')
+
+
+f.savefig(plotspath+'shape_galaxies_3D.pdf',bbox_inches='tight')
+
+
+'''
+
+### RELAXED
+
+f, ax = plt.subplots(2,2, figsize=(12,8), sharex=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+plot_fig(np.log10(gx1000.n),gx1000.q/DM1000.q,
+         np.log10(r1000.n),r1000.q50/DM1000.q,r1000.q75/DM1000.q,
+         r1000.q25/DM1000.q,4,ax[0,0],m1000p*C.mo2d_gap,'-',lyc='$R < R_{1000}$')
+
+plot_fig(np.log10(gx500.n),gx500.q/DM500.q,
+         np.log10(r500.n),r500.q50/DM500.q,r500.q75/DM500.q,
+         r500.q25/DM500.q,5,ax[0,0],m500p*C.mo2d_gap,'--',lyc='$R < R_{500}$')
+
+plot_fig(np.log10(gx200.n),gx200.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,0],mall2D*C.mo2d_gap,'-.',lyc='$R < R_{200}$')
+
+ax[0,0].legend(frameon=False)
+         
+#--------------         
+
+plot_fig(np.log10(gx1000.n),tgxp.T[-3],
+         np.log10(r1000.n),r1000.t2Ddm50,r1000.t2Ddm75,
+         r1000.t2Ddm25,4,ax[1,0],m1000p*C.mo2d_gap,'-')
+
+plot_fig(np.log10(gx500.n),tgxp.T[-2],
+         np.log10(r500.n),r500.t2Ddm50,r500.t2Ddm75,
+         r500.t2Ddm25,5,ax[1,0],m500p*C.mo2d_gap,'--')
+
+plot_fig(np.log10(gx200.n),tgxp.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,0],mall2D*C.mo2d_gap,'-.')
+
+
+# ----------------
+
+plot_fig(np.log10(gx_c.n),gx_c.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,1],mcp*C.mo2d_gap,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.n),gx_e.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,1],mep*C.mo2d_gap,'--',ly='extended')         
+
+ax[0,1].legend(frameon=False)         
+         
+plot_fig(np.log10(gx_c.n),tgxcp.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,1],mcp*C.mo2d_gap,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.n),tgxep.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,1],mep*C.mo2d_gap,'--',ly='extended')         
+
+ax[0,0].set_xlim([1.0,2.8])
+
+
+ax[1,1].set_ylim([0.,50])
+ax[1,0].set_ylim([0.,50])
+ax[0,0].set_ylim([0.55,1.2])
+ax[0,1].set_ylim([0.55,1.2])
+
+ax[0,1].set_yticklabels([])
+ax[1,1].set_yticklabels([])
+
+
+ax[1,0].set_xlabel('$\log(N)$')
+ax[1,1].set_xlabel('$\log(N)$')
+
+ax[0,0].set_ylabel('$q/q_{DM}$')
+
+ax[1,0].set_ylabel(r'$\theta^*$')
+
+f.savefig(plotspath+'shape_galaxies_2D_relaxed.pdf',bbox_inches='tight')
+
+
+### NON-RELAXED
+
+f, ax = plt.subplots(2,2, figsize=(12,8), sharex=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+plot_fig(np.log10(gx1000.n),gx1000.q/DM1000.q,
+         np.log10(r1000.n),r1000.q50/DM1000.q,r1000.q75/DM1000.q,
+         r1000.q25/DM1000.q,4,ax[0,0],m1000p*C.mn2d_gap,'-',lyc='$R < R_{1000}$')
+
+plot_fig(np.log10(gx500.n),gx500.q/DM500.q,
+         np.log10(r500.n),r500.q50/DM500.q,r500.q75/DM500.q,
+         r500.q25/DM500.q,5,ax[0,0],m500p*C.mn2d_gap,'--',lyc='$R < R_{500}$')
+
+plot_fig(np.log10(gx200.n),gx200.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,0],mall2D*C.mn2d_gap,'-.',lyc='$R < R_{200}$')
+
+ax[0,0].legend(frameon=False)
+         
+#--------------         
+
+plot_fig(np.log10(gx1000.n),tgxp.T[-3],
+         np.log10(r1000.n),r1000.t2Ddm50,r1000.t2Ddm75,
+         r1000.t2Ddm25,4,ax[1,0],m1000p*C.mn2d_gap,'-')
+
+plot_fig(np.log10(gx500.n),tgxp.T[-2],
+         np.log10(r500.n),r500.t2Ddm50,r500.t2Ddm75,
+         r500.t2Ddm25,5,ax[1,0],m500p*C.mn2d_gap,'--')
+
+plot_fig(np.log10(gx200.n),tgxp.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,0],mall2D*C.mn2d_gap,'-.')
+
+
+# ----------------
+
+plot_fig(np.log10(gx_c.n),gx_c.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,1],mcp*C.mn2d_gap,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.n),gx_e.q/DM200.q,
+         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
+         r200.q25/DM200.q,5,ax[0,1],mep*C.mn2d_gap,'--',ly='extended')         
+
+ax[0,1].legend(frameon=False)         
+         
+plot_fig(np.log10(gx_c.n),tgxcp.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,1],mcp*C.mn2d_gap,'-',ly='concentrated')
+
+plot_fig(np.log10(gx_e.n),tgxep.T[-1],
+         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
+         r200.t2Ddm25,5,ax[1,1],mep*C.mn2d_gap,'--',ly='extended')         
+
+ax[0,0].set_xlim([1.0,2.8])
+
+
+ax[1,1].set_ylim([0.,50])
+ax[1,0].set_ylim([0.,50])
+ax[0,0].set_ylim([0.55,1.2])
+ax[0,1].set_ylim([0.55,1.2])
+
+ax[0,1].set_yticklabels([])
+ax[1,1].set_yticklabels([])
+
+
+ax[1,0].set_xlabel('$\log(N)$')
+ax[1,1].set_xlabel('$\log(N)$')
+
+ax[0,0].set_ylabel('$q/q_{DM}$')
+
+ax[1,0].set_ylabel(r'$\theta^*$')
+
+f.savefig(plotspath+'shape_galaxies_2D_nonrelaxed.pdf',bbox_inches='tight')
+
+
+'''
+
+'''
 
 # PLOT formas
 
@@ -195,7 +571,7 @@ ax[2].plot([0.5,3],[1,1],'C7')
 
 f.savefig(plotspath+'shape_galaxies_ce_R200.pdf',bbox_inches='tight')
 
-# '''
+
 
 # PLOT relajados / no-relajados
 
@@ -250,20 +626,10 @@ ax[2].plot([0.5,3],[1,1],'C7')
 f.savefig(plotspath+'shape_galaxies_r_R200.pdf',bbox_inches='tight')
 
 
-# '''
 
 
-cgall = CorrelR(Galaxias,DarkMatter)
-cgce = CorrelR(DarkMatter,DarkMatter)
 
-tgx  = cgall.t3D
-tgxp = cgall.t2D
 
-tgxc  = cgce.t3D_gxc
-tgxe  = cgce.t3D_gxe
-
-tgxcp  = cgce.t2D_gxc
-tgxep  = cgce.t2D_gxe
 
 
 f, ax = plt.subplots(2,1, figsize=(6,8), sharex=True)
@@ -346,7 +712,7 @@ ax[1].set_ylabel(r'$\theta^*$')
 
 
 f.savefig(plotspath+'align_gx_re.pdf',bbox_inches='tight')
-# '''
+
 
 # ALIGN CON Y EXT
 
@@ -385,7 +751,7 @@ ax[1].set_ylabel(r'$\theta^*$')
 
 
 f.savefig(plotspath+'align_gx_re_R1000.pdf',bbox_inches='tight')
-# '''
+
 
 f, ax = plt.subplots(2,1, figsize=(6,9.5), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -463,3 +829,5 @@ ax[1].set_ylabel(r'$\theta^*$')
 
 
 f.savefig(plotspath+'align_gx_r.pdf',bbox_inches='tight')
+
+'''

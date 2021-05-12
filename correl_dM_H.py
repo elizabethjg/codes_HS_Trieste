@@ -124,16 +124,16 @@ for ax2 in ax.flatten():
 
 plotR_ind(R,SDM_r/SH_r,'k','all',ax = ax[1])
 plotR_ind(R[mn_gap],(SDM_r/SH_r)[mn_gap],'C0','non-relaxed',style='',ax = ax[1])
-plotR_ind(R[mo_gap],(SDM_r/SH_r)[mo_gap],'C3','relaxed',style='',ax = ax[1])
+plotR_ind(R[mo_gap],(SDM_r/SH_r)[mo_gap],'sienna','relaxed',style='',ax = ax[1])
 
 ax[1].legend(frameon=False,loc=3)
 
-plotR_ind(R[mn_off],(SDM_r/SH_r)[mn_off],'C0','all',style='--',ax = ax[1])
-plotR_ind(R[mn_dv] ,(SDM_r/SH_r)[mn_dv] ,'C0','all',style=':',ax = ax[1])
+# plotR_ind(R[mn_off],(SDM_r/SH_r)[mn_off],'C0','all',style='--',ax = ax[1])
+# plotR_ind(R[mn_dv] ,(SDM_r/SH_r)[mn_dv] ,'C0','all',style=':',ax = ax[1])
 
 
-plotR_ind(R[mo_off],(SDM_r/SH_r)[mo_off],'C3','all',style='--',ax = ax[1])
-plotR_ind(R[mo_dv] ,(SDM_r/SH_r)[mo_dv] ,'C3','all',style=':',ax = ax[1])
+# plotR_ind(R[mo_off],(SDM_r/SH_r)[mo_off],'sienna','all',style='--',ax = ax[1])
+# plotR_ind(R[mo_dv] ,(SDM_r/SH_r)[mo_dv] ,'sienna','all',style=':',ax = ax[1])
 
 ax[0].plot([R.min(),1],[1,1],'C7')
 ax[0].set_xlim([0.02,1.])
@@ -143,17 +143,17 @@ ax[1].set_ylabel('$S_{DM}/S_H$')
 ax[2].set_xlabel('$R/R_{200}$')
 
 ax[0].set_xscale('log')
-plt.savefig(plotspath+'Sr_DM_H.pdf',bbox_inches='tight')
+
 # T plot
 
 plotR_ind(R,TDM_r/TH_r,'k','all',ax = ax[0])
 plotR_ind(R[mn_gap],(TDM_r/TH_r)[mn_gap],'C0','non-relaxed',style='',ax = ax[0])
-plotR_ind(R[mn_off],(TDM_r/TH_r)[mn_off],'C0','all',style='--',ax = ax[0])
-plotR_ind(R[mn_dv] ,(TDM_r/TH_r)[mn_dv] ,'C0','all',style=':',ax = ax[0])
+# plotR_ind(R[mn_off],(TDM_r/TH_r)[mn_off],'C0','all',style='--',ax = ax[0])
+# plotR_ind(R[mn_dv] ,(TDM_r/TH_r)[mn_dv] ,'C0','all',style=':',ax = ax[0])
                            
-plotR_ind(R[mo_gap],(TDM_r/TH_r)[mo_gap],'C3','relaxed',style='',ax = ax[0])
-plotR_ind(R[mo_off],(TDM_r/TH_r)[mo_off],'C3','all',style='--',ax = ax[0])
-plotR_ind(R[mo_dv] ,(TDM_r/TH_r)[mo_dv] ,'C3','all',style=':',ax = ax[0])
+plotR_ind(R[mo_gap],(TDM_r/TH_r)[mo_gap],'sienna','relaxed',style='',ax = ax[0])
+# plotR_ind(R[mo_off],(TDM_r/TH_r)[mo_off],'sienna','all',style='--',ax = ax[0])
+# plotR_ind(R[mo_dv] ,(TDM_r/TH_r)[mo_dv] ,'sienna','all',style=':',ax = ax[0])
 
 # plt.xticks(np.median(np.log10(R),axis=0),Rlegend,fontsize=10.5)
 ax[1].plot([0,5],[1,1],'C7')
@@ -166,11 +166,11 @@ ax[0].set_ylabel('$T_{DM}/T_H$')
 
 plotR_ind(Rp,qDM_r/qH_r,'k','all',ax = ax[2])
 plotR_ind(Rp[mn2d_gap],(qDM_r/qH_r)[mn2d_gap],'C0','non-relaxed',style='',ax = ax[2])
-plotR_ind(Rp[mn2d_off],(qDM_r/qH_r)[mn2d_off],'C0','all',style='--',ax = ax[2])
-plotR_ind(Rp[mn2d_dv] ,(qDM_r/qH_r)[mn2d_dv] ,'C0','all',style=':',ax = ax[2])      
-plotR_ind(Rp[mo2d_gap],(qDM_r/qH_r)[mo2d_gap],'C3','relaxed',style='',ax = ax[2])
-plotR_ind(Rp[mo2d_off],(qDM_r/qH_r)[mo2d_off],'C3','all',style='--',ax = ax[2])
-plotR_ind(Rp[mo2d_dv] ,(qDM_r/qH_r)[mo2d_dv] ,'C3','all',style=':',ax = ax[2])
+# plotR_ind(Rp[mn2d_off],(qDM_r/qH_r)[mn2d_off],'C0','all',style='--',ax = ax[2])
+# plotR_ind(Rp[mn2d_dv] ,(qDM_r/qH_r)[mn2d_dv] ,'C0','all',style=':',ax = ax[2])      
+plotR_ind(Rp[mo2d_gap],(qDM_r/qH_r)[mo2d_gap],'sienna','relaxed',style='',ax = ax[2])
+# plotR_ind(Rp[mo2d_off],(qDM_r/qH_r)[mo2d_off],'sienna','all',style='--',ax = ax[2])
+# plotR_ind(Rp[mo2d_dv] ,(qDM_r/qH_r)[mo2d_dv] ,'sienna','all',style=':',ax = ax[2])
 
 
 ax[2].plot([0,5],[1,1],'C7')
@@ -184,9 +184,9 @@ plt.savefig(plotspath+'shape_DM_H.pdf',bbox_inches='tight')
 
 # t3d plot
 
-limites = [0.02,1.,0.,16.]
+limites = [0.02,1.,0.,10.]
 
-f, ax = plt.subplots(2,1, figsize=(6,6), sharex=True, sharey=True)
+f, ax = plt.subplots(2,1, figsize=(5,6), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 for ax2 in ax.flatten():
@@ -195,32 +195,32 @@ for ax2 in ax.flatten():
 
 plotR_ind(R,t3D,'k','all',ax = ax[0])
 plotR_ind(R[mn_gap],t3D[mn_gap],'C0','non-relaxed',style='',ax = ax[0])
-plotR_ind(R[mo_gap],t3D[mo_gap],'C3','relaxed',style='',ax = ax[0])
+plotR_ind(R[mo_gap],t3D[mo_gap],'sienna','relaxed',style='',ax = ax[0])
 
 ax[0].legend(frameon=False,loc=2)
 
-plotR_ind(R[mn_off],t3D[mn_off],'C0','all',style='--',ax = ax[0])
-plotR_ind(R[mn_dv] ,t3D[mn_dv] ,'C0','all',style=':',ax = ax[0])
+# plotR_ind(R[mn_off],t3D[mn_off],'C0','all',style='--',ax = ax[0])
+# plotR_ind(R[mn_dv] ,t3D[mn_dv] ,'C0','all',style=':',ax = ax[0])
 
-plotR_ind(R[mo_off],t3D[mo_off],'C3','all',style='--',ax = ax[0])
-plotR_ind(R[mo_dv] ,t3D[mo_dv] ,'C3','all',style=':',ax = ax[0])
+# plotR_ind(R[mo_off],t3D[mo_off],'sienna','all',style='--',ax = ax[0])
+# plotR_ind(R[mo_dv] ,t3D[mo_dv] ,'sienna','all',style=':',ax = ax[0])
 
 
 ax[0].axis(limites)
 
 
-ax[0].set_ylabel(r'$\theta [\circ]$')
+ax[0].set_ylabel(r'$\theta^{3D} [\circ]$')
 
 # t2d plot
 
 
 plotR_ind(Rp,t2D,'k','all',ax = ax[1])
 plotR_ind(Rp[mn2d_gap],t2D[mn2d_gap],'C0','non-relaxed',style='',ax = ax[1])
-plotR_ind(Rp[mn2d_off],t2D[mn2d_off],'C0','all',style='--',ax = ax[1])
-plotR_ind(Rp[mn2d_dv] ,t2D[mn2d_dv] ,'C0','all',style=':',ax = ax[1])
-plotR_ind(Rp[mo2d_gap],t2D[mo2d_gap],'C3','relaxed',style='',ax = ax[1])
-plotR_ind(Rp[mo2d_off],t2D[mo2d_off],'C3','all',style='--',ax = ax[1])
-plotR_ind(Rp[mo2d_dv] ,t2D[mo2d_dv] ,'C3','all',style=':',ax = ax[1])
+# plotR_ind(Rp[mn2d_off],t2D[mn2d_off],'C0','all',style='--',ax = ax[1])
+# plotR_ind(Rp[mn2d_dv] ,t2D[mn2d_dv] ,'C0','all',style=':',ax = ax[1])
+plotR_ind(Rp[mo2d_gap],t2D[mo2d_gap],'sienna','relaxed',style='',ax = ax[1])
+# plotR_ind(Rp[mo2d_off],t2D[mo2d_off],'sienna','all',style='--',ax = ax[1])
+# plotR_ind(Rp[mo2d_dv] ,t2D[mo2d_dv] ,'sienna','all',style=':',ax = ax[1])
 
 
 # ax[1].set_xticks(np.median(np.log10(R),axis=0))
@@ -229,7 +229,7 @@ plotR_ind(Rp[mo2d_dv] ,t2D[mo2d_dv] ,'C3','all',style=':',ax = ax[1])
 
 ax[1].axis(limites)
 
-ax[1].set_ylabel(r'$\theta^* [\circ]$')
+ax[1].set_ylabel(r'$\theta [\circ]$')
 ax[1].set_xlabel('$R/R_{200}$')
 
 ax[1].set_xscale('log')

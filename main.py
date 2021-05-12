@@ -5,10 +5,17 @@ from pylab import *
 from scipy.optimize import curve_fit
 from scipy import integrate
 
-path = '../catalog/nuevosdats/'
+# path = '../catalog/nuevosdats/'
+path = '../catalog/'
 
 def g(x,disp): 
     return (1./(np.sqrt(2*np.pi)*disp))*np.exp(-0.5*(x/disp)**2)
+
+def q_75(y):
+    return np.quantile(y, 0.75)
+
+def q_25(y):
+    return np.quantile(y, 0.25)
 
 
 class Dcompute():
@@ -81,11 +88,6 @@ def cosangle2(a,b):
 
 def binned(x,y,nbins=10):
     
-    def q_75(y):
-        return np.quantile(y, 0.75)
-
-    def q_25(y):
-        return np.quantile(y, 0.25)
     
     bined = stats.binned_statistic(x,y,statistic='median', bins=nbins)
     x_b = 0.5*(bined.bin_edges[:-1] + bined.bin_edges[1:])
@@ -113,7 +115,7 @@ def plot_binned(X,Y,label,color='C3',style='',nbins=10):
 
 def newold(indicator = 'gap',gxs = False):
     
-    gral  = np.loadtxt(path+'gral_nounb_091.dat').T
+    gral  = np.loadtxt(path+'gral_091.dat').T
     
     lM = np.log10(gral[9])
     lMp = np.array((lM.tolist())*3)
@@ -141,6 +143,13 @@ def newold(indicator = 'gap',gxs = False):
     mnew = mgap
     mnew2D = mgap2D
     
+    if 'gap' in indicator:
+        mold = gap < 0.2
+        mold2D = gap2D < 0.2
+        
+        mnew = ~mold
+        mnew2D = ~mold2D
+    
     if gxs:
             mN = Galaxias(radio=1000).N > 9
             mN2D = np.array((Galaxias(radio=1000).N.tolist())*3) > 9
@@ -150,10 +159,19 @@ def newold(indicator = 'gap',gxs = False):
             mold2D = mold2D[mN2D] 
     
     return mnew,mold,mnew2D,mold2D
+    
+def plot_fig(x,y,nbins,ax=plt,color = 'sienna', style = '',label=''):
+                
+        X,q50,q25,q75,mz = binned(x,y,nbins)
+        ax.plot(X,q50,color+style,label=label)
+        ax.plot(X,q75,color+style,alpha=0.2)
+        ax.plot(X,q25,color+style,alpha=0.2)
+        ax.fill_between(X,q75,q25,color = color,alpha=0.1)
+
 
 class Shape:
     
-    def __init__(self, ind=2, name_cat=path+'dm_nounb_091.dat'):
+    def __init__(self, ind=2, name_cat=path+'dm_091.dat'):
         self.ind = ind
         self.name_cat = name_cat
         cat = np.loadtxt(name_cat).T
@@ -182,7 +200,7 @@ class DarkMatter(Shape):
     
     def __init__(self, radio,subhalos=True):
         
-        self.name_cat = path+'dm_nounb_091.dat'      
+        self.name_cat = path+'dm_091.dat'      
 
         if radio == 30:
             ind = 2
@@ -218,7 +236,7 @@ class Stars(Shape):
         elif radio == 200:
             ind = 2+15*5
             
-        self.name_cat = path+'stars_nounb_091.dat'      
+        self.name_cat = path+'stars_091.dat'      
         Shape.__init__(self, ind=ind, name_cat=self.name_cat)
 
 class Galaxias(Shape):
@@ -227,7 +245,7 @@ class Galaxias(Shape):
         
         if tipo == 'all':
         
-            self.name_cat = path+'glxs_nounb_091.dat'
+            self.name_cat = path+'glxs_091.dat'
     
             if radio == 1000:
                 ind = 2
@@ -248,7 +266,7 @@ class Galaxias(Shape):
             ind = ind + 4
         
         else:
-            self.name_cat = path+'glxs_hmr_nounb_091.dat'
+            self.name_cat = path+'glxs_hmr_091.dat'
             gal = np.loadtxt(self.name_cat).T
             ind = 2
             self.N  = gal[ind]
@@ -273,7 +291,7 @@ class Random():
     def __init__(self, radio = 200):
         
         
-        gal = np.loadtxt(path+'dmrand_nounb_091.dat').T
+        gal = np.loadtxt(path+'nuevosdats/dmrand_nounb_091.dat').T
         
         if radio == 1000:
             ind = 2
@@ -349,10 +367,19 @@ class Clusters:
     
     def __init__(self):
 
-        gral  = np.loadtxt(path+'gral_nounb_091.dat').T
+        gral  = np.loadtxt(path+'gral_091.dat').T
+        times  = np.loadtxt('../catalog/relevant_times.dat').T
+        
+        ltime = np.ones(len(gral.T))*-999.
+
+        for j in range(len(gral.T)):
+            m = (gral[0,j] == times[0])*(gral[2,j] == times[1])
+            if m.sum() == 1:
+                ltime[j] = times[3,m]
         
         self.D     = gral[0]
         self.sub   = gral[1]
+        self.ltime   = ltime
         
         self.R1000 = gral[4]
         self.R500  = gral[5]
@@ -410,12 +437,14 @@ class Clusters:
         self.Rp = np.array((self.R.tolist())*3)
         self.Rsp = np.array((self.Rs.tolist())*3)
         
+        self.ltimep = np.array((ltime.tolist())*3)
+        
 class ICL:
     
     def __init__(self,trazer='icl'):
         
         
-        path = '../catalog/tablas_'+trazer+'/'
+        pathicl = '../catalog/tablas_'+trazer+'/'
                
         D    = np.array([])
         proj = np.array([])
@@ -431,22 +460,49 @@ class ICL:
         PA0   = []
         ePA0  = []
         
+        qicl      = np.array([])
+        eqicl     = np.array([])
+        PAicl     = np.array([])
+        ePAicl    = np.array([])
+        
+        Ricl = np.array([])
+        Rbcg = np.array([])
+        
+        xicl = np.array([])
+        yicl = np.array([])
+        
+        xbcg = np.array([])
+        ybcg = np.array([])
+        
+        qbcg   = np.array([])
+        eqbcg  = np.array([])
+        PAbcg  = np.array([])
+        ePAbcg = np.array([])
+        
+        C = Clusters()
+        m = (C.sub == 0)
+        mp = (m.tolist()*3)
+
+        r200  = C.Rp[mp,-1]
+        r100  = C.Rp[mp,2]
+        r1000  = C.Rp[mp,3]
+
+        
         p    = ['xy','xz','yz']
         
-        if trazer == 'icl':
-            csample = np.arange(1,30)
-        else:
-            csample = [1,13,26]
+        csample = np.arange(1,30)
         
         for i in range(3):
         
             for j in csample:
                 
-                tab = np.loadtxt(path+'d'+str(int(j))+'_'+p[i]+'.dat',dtype='str').T
+                ## icl data
+                
+                tab = np.loadtxt(pathicl+'d'+str(int(j))+'_'+p[i]+'.dat',dtype='str').T
             
-                mindef = ~(tab[-1] == 'INDEF')
+                mindef = ~(tab[-5] == 'INDEF')
                 tab[-5][~mindef] = '99.'
-                musar  = (tab[-5].astype(float) < 10.)
+                musar  = (tab[-5].astype(float) < 90.)
             
                 D    = np.append(D,j)
                 proj = np.append(proj,i)
@@ -455,12 +511,10 @@ class ICL:
                     a, i0, ei0, e, ee, pa, epa, x0, ex0, y0, ey0 = tab[:,musar].astype(float)                
                 except:
                     a, i0, e, ee, pa, epa, x0, ex0, y0, ey0 = tab[:,musar].astype(float)                
-                    
-                pa[pa < 0.] = 360. + pa[pa < 0.]
+                                    
                 
-                pa[pa > 180.] = pa[pa > 180.] - 180.
-                
-                A   = A + [(1+a)*20.]
+                r = (1+a)*20.
+                A   = A + [r]
                 PA  = PA + [pa]
                 ePA = ePA + [epa]
                 q   = q + [1.-e]
@@ -472,9 +526,81 @@ class ICL:
                 q0   = q0 + [1.-e[-1]]
                 eq0 = eq0 + [ee[-1]]
                 
-        
+                micl = (r > r100[j-1])
+                mbcg = r < r100[j-1]
+                
+                if any(pa > 80.):
+                    pa[pa < 0.] = 180. + pa[pa < 0.]
+                
+                
+                paicl = np.mean(pa[micl])
+                pabcg = np.mean(pa[mbcg])
+
+                ricl = np.max(r[micl]/r200[j-1])
+                
+                if mbcg.sum() > 2.:
+                    rbcg = np.max(r[mbcg]/r200[j-1])
+                else:
+                    rbcg = 0.
+
+                if paicl < 0.:
+                    paicl += 360.
+                if paicl > 180.:
+                    paicl -= 180.
+
+                if pabcg < 0.:
+                    pabcg += 360.
+                if pabcg > 180.:
+                    pabcg -= 180.
 
                 
+                qicl     = np.append(qicl,np.mean((1.-e)[micl]))
+                eqicl    = np.append(eqicl,np.std((1.-e)[micl]))
+
+                Ricl    = np.append(Ricl,ricl)
+                Rbcg    = np.append(Rbcg,rbcg)
+                
+                PAicl    = np.append(PAicl,paicl)
+                ePAicl   = np.append(ePAicl,np.std(epa[micl]))
+            
+                qbcg = np.append(qbcg,np.mean((1.-e)[mbcg]))
+                eqbcg = np.append(eqbcg,np.std((1.-e)[mbcg]))
+                PAbcg    = np.append(PAbcg,np.mean(pa[mbcg]))
+                ePAbcg   = np.append(ePAbcg,np.std(epa[mbcg]))
+                
+                xbcg = np.append(xbcg,-1.*np.sin(np.deg2rad(PAbcg[-1])))
+                ybcg = np.append(ybcg,np.cos(np.deg2rad(PAbcg[-1])))
+
+                xicl = np.append(xicl,-1.*np.sin(np.deg2rad(PAicl[-1])))
+                yicl = np.append(yicl,np.cos(np.deg2rad(PAicl[-1])))
+                
+                
+        a2Dicl = np.zeros((len(xicl),2))
+        a2Dbcg = np.zeros((len(xicl),2))
+        
+        a2Dicl[:,0] = xicl
+        a2Dicl[:,1] = yicl
+
+        a2Dbcg[:,0] = xbcg
+        a2Dbcg[:,1] = ybcg
+
+        self.a2Dicl = a2Dicl
+        self.a2Dbcg = a2Dbcg
+
+        self.Ricl = Ricl
+        self.Rbcg = Rbcg
+
+        self.qicl  = qicl
+        self.eqicl = eqicl
+        self.PAicl = PAicl
+        self.ePAicl = ePAicl
+
+        self.qbcg  = qbcg
+        self.eqbcg = eqbcg
+        self.PAbcg = PAbcg
+        self.ePAbcg = ePAbcg
+        
+        
         self.D    = D
         self.proj = proj
         self.a    = A
@@ -497,7 +623,7 @@ class CorrelR():
     
     def __init__(self,trazer1,trazer2,mN = [],mN2D = []):
     
-        gral  = np.loadtxt(path+'gral_nounb_091.dat').T
+        gral  = np.loadtxt(path+'gral_091.dat').T
         
         
         t1_200  = trazer1(radio=200)
@@ -665,10 +791,10 @@ class CorrelR():
 
 
 def plotR_ind(R,S,color,label,style='',ax=plt):
-    ax.plot(np.median(R,axis=0),np.median(S,axis=0),color+style,label = label)
+    ax.plot(np.median(R,axis=0),np.median(S,axis=0),style,color=color,label = label)
     # ax.fill_between(np.median(np.log10(R),axis=0),np.median(S,axis=0)+np.std(S,axis=0),np.median(S,axis=0)-np.std(S,axis=0),color = color,alpha=0.1)
-    ax.plot(np.median(R,axis=0),np.quantile(S, 0.75, axis=0),color+style,alpha=0.2)
-    ax.plot(np.median(R,axis=0),np.quantile(S, 0.25, axis=0),color+style,alpha=0.2)
+    ax.plot(np.median(R,axis=0),np.quantile(S, 0.75, axis=0),style,color=color,alpha=0.2)
+    ax.plot(np.median(R,axis=0),np.quantile(S, 0.25, axis=0),style,color=color,alpha=0.2)
     ax.fill_between(np.median(R,axis=0),np.quantile(S, 0.75, axis=0),np.quantile(S, 0.25, axis=0),color = color,alpha=0.1)
 
 
