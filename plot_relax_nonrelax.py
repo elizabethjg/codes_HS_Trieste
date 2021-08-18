@@ -1,14 +1,10 @@
 import sys
 import time
 import numpy as np
-from astropy.io import fits
-from astropy.cosmology import LambdaCDM
 from scipy import stats
 from pylab import *
 from main import *
-from scipy.stats import pearsonr
 import os
-cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)

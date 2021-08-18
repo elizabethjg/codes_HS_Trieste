@@ -36,6 +36,13 @@ DM500  = DarkMatter(500)
 DM200  = DarkMatter(200)
 
 
+st1000 = Stars(1000)
+st500  = Stars(500)
+st200  = Stars(200)
+st100  = Stars(100)
+st50   = Stars(50)
+st30   = Stars(30)
+
 SDM_r = np.vstack((DM30.S,DM50.S,DM100.S,DM1000.S,DM500.S,DM200.S)).T
 TDM_r = np.vstack((DM30.T,DM50.T,DM100.T,DM1000.T,DM500.T,DM200.T)).T
 qDM_r = np.vstack((DM30.q,DM50.q,DM100.q,DM1000.q,DM500.q,DM200.q)).T
@@ -197,3 +204,227 @@ ax[0,1].text(0.07,0.9,'Non-relaxed')
 
 plt.savefig(plotspath+'stars_gap.pdf',bbox_inches='tight')
 
+##################
+
+colors = ['navy','indigo','brown','C3','C1','y']
+radio = [30,50,100,1000,500,200]
+labels = ['30kpc','50kpc','0.1$R_{500}$','$R_{1000}$','$R_{500}$','$R_{200}$']
+
+mold = (C.ltime > 0.)*(C.ltime > 4.9)
+mold_p = (C.ltimep > 0.)*(C.ltimep > 4.9)
+mnew = (C.ltime > 0.)*(C.ltime < 4.9)
+mnew_p = (C.ltimep > 0.)*(C.ltimep < 4.9)
+
+mold   = C.mo_gap
+mold_p = C.mo2d_gap
+mnew   = C.mn_gap
+mnew_p = C.mn2d_gap
+
+f, ax = plt.subplots(3,1, figsize=(5,12))
+f2, ax2 = plt.subplots(3,1, figsize=(5,12))
+f3, ax3 = plt.subplots(3,1, figsize=(5,12))
+f4, ax4 = plt.subplots(3,1, figsize=(5,12))
+f5, ax5 = plt.subplots(3,1, figsize=(5,12))
+
+for j in range(6):
+    
+    plot_fig(Stars(radio[j]).T,Stars(radio[j]).T/DarkMatter(radio[j]).T,5,color=colors[j],ax=ax[0])
+    plot_fig(Stars(radio[j]).S,Stars(radio[j]).S/DarkMatter(radio[j]).S,5,color=colors[j],ax=ax[1],label=labels[j])
+    plot_fig(Stars(radio[j]).q,Stars(radio[j]).q/DarkMatter(radio[j]).q,5,color=colors[j],ax=ax[2],label=labels[j])
+
+    plot_fig(DarkMatter(radio[j]).T,Stars(radio[j]).T/DarkMatter(radio[j]).T,5,color=colors[j],ax=ax3[0])
+    plot_fig(DarkMatter(radio[j]).S,Stars(radio[j]).S/DarkMatter(radio[j]).S,5,color=colors[j],ax=ax3[1],label=labels[j])
+    plot_fig(DarkMatter(radio[j]).q,Stars(radio[j]).q/DarkMatter(radio[j]).q,5,color=colors[j],ax=ax3[2],label=labels[j])
+
+    plot_fig(Stars(radio[j]).T,DarkMatter(radio[j]).T/Stars(radio[j]).T,5,color=colors[j],ax=ax4[0])
+    plot_fig(Stars(radio[j]).S,DarkMatter(radio[j]).S/Stars(radio[j]).S,5,color=colors[j],ax=ax4[1],label=labels[j])
+    plot_fig(Stars(radio[j]).q,DarkMatter(radio[j]).q/Stars(radio[j]).q,5,color=colors[j],ax=ax4[2],label=labels[j])
+
+    plot_fig(DarkMatter(radio[j]).T,DarkMatter(radio[j]).T/Stars(radio[j]).T,5,color=colors[j],ax=ax5[0])
+    plot_fig(DarkMatter(radio[j]).S,DarkMatter(radio[j]).S/Stars(radio[j]).S,5,color=colors[j],ax=ax5[1],label=labels[j])
+    plot_fig(DarkMatter(radio[j]).q,DarkMatter(radio[j]).q/Stars(radio[j]).q,5,color=colors[j],ax=ax5[2],label=labels[j])
+    
+    if j == 2 or j == 5:
+        
+        plot_fig(Stars(radio[j]).T,Stars(radio[j]).T/DarkMatter(radio[j]).T,5,color=colors[j],ax=ax2[0])
+        plot_fig(Stars(radio[j]).S,Stars(radio[j]).S/DarkMatter(radio[j]).S,5,color=colors[j],ax=ax2[1],label=labels[j])
+        plot_fig(Stars(radio[j]).q,Stars(radio[j]).q/DarkMatter(radio[j]).q,5,color=colors[j],ax=ax2[2],label=labels[j])
+
+        plot_fig(Stars(radio[j]).T[mold],(Stars(radio[j]).T/DarkMatter(radio[j]).T)[mold],5,color=colors[j],ax=ax2[0],style='--')
+        plot_fig(Stars(radio[j]).S[mold],(Stars(radio[j]).S/DarkMatter(radio[j]).S)[mold],5,color=colors[j],ax=ax2[1],label=labels[j],style='--')
+        plot_fig(Stars(radio[j]).q[mold_p],(Stars(radio[j]).q/DarkMatter(radio[j]).q)[mold_p],5,color=colors[j],ax=ax2[2],label=labels[j],style='--')
+        plot_fig(Stars(radio[j]).T[mnew],(Stars(radio[j]).T/DarkMatter(radio[j]).T)[mnew],5,color=colors[j],ax=ax2[0],style=':')
+        plot_fig(Stars(radio[j]).S[mnew],(Stars(radio[j]).S/DarkMatter(radio[j]).S)[mnew],5,color=colors[j],ax=ax2[1],label=labels[j],style=':')
+        plot_fig(Stars(radio[j]).q[mnew_p],(Stars(radio[j]).q/DarkMatter(radio[j]).q)[mnew_p],5,color=colors[j],ax=ax2[2],label=labels[j],style=':')
+
+
+    
+ax[2].legend(loc=2,frameon=False,fontsize = 12,ncol=2)
+ax[0].set_ylabel('$T\star / T_{DM}$')
+ax[1].set_ylabel('$S\star / S_{DM}$')
+ax[2].set_ylabel('$q\star / q_{DM}$')
+ax[2].set_xlabel('$q\star$')
+ax[1].set_xlabel('$S\star$')
+ax[0].set_xlabel('$T\star$')
+
+
+ax2[0].set_ylabel('$T\star / T_{DM}$')
+ax2[1].set_ylabel('$S\star / S_{DM}$')
+ax2[2].set_ylabel('$q\star / q_{DM}$')
+ax2[2].set_xlabel('$q\star$')
+ax2[1].set_xlabel('$S\star$')
+ax2[0].set_xlabel('$T\star$')
+
+ax3[0].set_ylabel('$T\star / T_{DM}$')
+ax3[1].set_ylabel('$S\star / S_{DM}$')
+ax3[2].set_ylabel('$q\star / q_{DM}$')
+ax3[2].set_xlabel('$q_{DM}$')
+ax3[1].set_xlabel('$S_{DM}$')
+ax3[0].set_xlabel('$T_{DM}$')
+
+ax4[0].set_ylabel('$T_{DM} / T\star$')
+ax4[1].set_ylabel('$S_{DM} / S\star$')
+ax4[2].set_ylabel('$q_{DM} / q\star$')
+ax4[2].set_xlabel('$q\star$')
+ax4[1].set_xlabel('$S\star$')
+ax4[0].set_xlabel('$T\star$')
+
+ax5[0].set_ylabel('$T_{DM} / T\star$')
+ax5[1].set_ylabel('$S_{DM} / S\star$')
+ax5[2].set_ylabel('$q_{DM} / q\star$')
+ax5[2].set_xlabel('$q_{DM}$')
+ax5[1].set_xlabel('$S_{DM}$')
+ax5[0].set_xlabel('$T_{DM}$')
+
+ax[0].set_xlim([0.15,0.9])
+ax[1].set_xlim([0.32,0.75])
+ax[2].set_xlim([0.4,0.95])
+ax[0].set_ylim([0.0,5.0])
+ax[1].set_ylim([0.5,1.0])
+ax[2].set_ylim([0.5,1.2])
+
+ax2[0].set_xlim([0.15,0.9])
+ax2[1].set_xlim([0.32,0.75])
+ax2[2].set_xlim([0.4,0.95])
+ax2[0].set_ylim([0.0,5.0])
+ax2[1].set_ylim([0.5,1.0])
+ax2[2].set_ylim([0.5,1.2])
+
+ax3[0].set_xlim([0.1,0.9])
+ax3[1].set_xlim([0.5,0.85])
+ax3[2].set_xlim([0.5,1.0])
+ax3[0].set_ylim([0.0,5.0])
+ax3[1].set_ylim([0.5,1.0])
+ax3[2].set_ylim([0.5,1.2])
+
+ax4[0].set_xlim([0.15,0.9])
+ax4[1].set_xlim([0.32,0.75])
+ax4[2].set_xlim([0.4,0.95])
+ax4[0].set_ylim([0.0,1.2])
+ax4[1].set_ylim([0.7,2.0])
+ax4[2].set_ylim([0.7,2.0])
+
+ax5[0].set_xlim([0.1,0.9])
+ax5[1].set_xlim([0.5,0.85])
+ax5[2].set_xlim([0.5,1.0])
+ax5[0].set_ylim([0.0,1.2])
+ax5[1].set_ylim([0.7,2.0])
+ax5[2].set_ylim([0.7,2.0])
+
+
+
+f.savefig(plotspath+'ratio_stars.pdf',bbox_inches='tight')
+f4.savefig(plotspath+'ratio_stars_inv.pdf',bbox_inches='tight')
+f2.savefig(plotspath+'ratio_stars_relax_nonrelax.pdf',bbox_inches='tight')
+f3.savefig(plotspath+'ratio_stars_dm.pdf',bbox_inches='tight')
+f5.savefig(plotspath+'ratio_stars_dm_inv.pdf',bbox_inches='tight')
+
+f, ax = plt.subplots(3,1, figsize=(5,12))
+f2, ax2 = plt.subplots(3,1, figsize=(5,12))
+# f.subplots_adjust(hspace=0,wspace=0)
+
+for j in range(6):
+    plot_fig(Stars(radio[j]).T,DarkMatter(radio[j]).T,5,color=colors[j],ax=ax[0])
+    plot_fig(Stars(radio[j]).S,DarkMatter(radio[j]).S,5,color=colors[j],ax=ax[1])
+    plot_fig(Stars(radio[j]).q,DarkMatter(radio[j]).q,5,color=colors[j],ax=ax[2],label=labels[j])
+
+    plot_fig(DarkMatter(radio[j]).T,Stars(radio[j]).T,5,color=colors[j],ax=ax2[0])
+    plot_fig(DarkMatter(radio[j]).S,Stars(radio[j]).S,5,color=colors[j],ax=ax2[1])
+    plot_fig(DarkMatter(radio[j]).q,Stars(radio[j]).q,5,color=colors[j],ax=ax2[2],label=labels[j])
+    
+ax[2].legend(loc=4,frameon=False,fontsize = 12,ncol=2)
+ax[0].set_ylabel('$T_{DM}$')
+ax[1].set_ylabel('$S_{DM}$')
+ax[2].set_ylabel('$q_{DM}$')
+ax[0].set_xlabel('$T\star$')
+ax[2].set_xlabel('$q\star$')
+ax[1].set_xlabel('$S\star$')
+
+ax2[0].set_xlabel('$T_{DM}$')
+ax2[1].set_xlabel('$S_{DM}$')
+ax2[2].set_xlabel('$q_{DM}$')
+ax2[0].set_ylabel('$T\star$')
+ax2[2].set_ylabel('$q\star$')
+ax2[1].set_ylabel('$S\star$')
+
+ax[0].plot([0,1],[0,1],'C7--')
+ax[1].plot([0,1],[0,1],'C7--')
+ax[2].plot([0,1],[0,1],'C7--')
+
+ax2[0].plot([0,1],[0,1],'C7--')
+ax2[1].plot([0,1],[0,1],'C7--')
+ax2[2].plot([0,1],[0,1],'C7--')
+
+ax[0].set_xlim([0.15,0.9])
+ax[1].set_xlim([0.32,0.75])
+ax[2].set_xlim([0.4,0.95])
+ax[0].set_ylim([0.1,0.9])
+ax[1].set_ylim([0.4,0.9])
+ax[2].set_ylim([0.5,1.0])
+
+ax2[0].set_ylim([0.15,0.9])
+ax2[1].set_ylim([0.32,0.75])
+ax2[2].set_ylim([0.4,0.95])
+ax2[0].set_xlim([0.1,0.9])
+ax2[1].set_xlim([0.4,0.9])
+ax2[2].set_xlim([0.5,1.0])
+
+f.savefig(plotspath+'compare_stars.pdf',bbox_inches='tight')
+f2.savefig(plotspath+'compare_stars_dm.pdf',bbox_inches='tight')
+
+'''
+f, ax = plt.subplots(3,1, figsize=(5,12))
+
+for j in range(6):
+    plot_fig(DarkMatter(radio[j]).T,Stars(radio[j]).T/DarkMatter(radio[j]).T,5,color=colors[j],ax=ax[0])
+    plot_fig(DarkMatter(radio[j]).S,Stars(radio[j]).S/DarkMatter(radio[j]).S,5,color=colors[j],ax=ax[1],label=labels[j])
+    plot_fig(DarkMatter(radio[j]).q,Stars(radio[j]).q/DarkMatter(radio[j]).q,5,color=colors[j],ax=ax[2],label=labels[j])
+    
+ax[2].legend(loc=2,frameon=False,fontsize = 12,ncol=2)
+ax[0].set_ylabel('$T\star / T_{DM}$')
+ax[1].set_ylabel('$S\star / S_{DM}$')
+ax[2].set_ylabel('$q\star / q_{DM}$')
+ax[2].set_xlabel('$q_{DM}$')
+ax[1].set_xlabel('$S_{DM}$')
+ax[0].set_xlabel('$T_{DM}$')
+
+plt.savefig(plotspath+'ratio_stars_dm.pdf',bbox_inches='tight')
+
+f, ax = plt.subplots(3,1, figsize=(5,12))
+# f.subplots_adjust(hspace=0,wspace=0)
+
+for j in range(6):
+    plot_fig(DarkMatter(radio[j]).T,DarkMatter(radio[j]).T,5,color=colors[j],ax=ax[0])
+    plot_fig(DarkMatter(radio[j]).S,DarkMatter(radio[j]).S,5,color=colors[j],ax=ax[1])
+    plot_fig(DarkMatter(radio[j]).q,DarkMatter(radio[j]).q,5,color=colors[j],ax=ax[2],label=labels[j])
+    
+ax[2].legend(loc=4,frameon=False,fontsize = 12,ncol=2)
+ax[0].set_ylabel('$T_{DM}$')
+ax[1].set_ylabel('$S_{DM}$')
+ax[2].set_ylabel('$q_{DM}$')
+ax[0].set_xlabel('$T_{DM}$')
+ax[2].set_xlabel('$q_{DM}$')
+ax[1].set_xlabel('$S_{DM}$')
+
+plt.savefig(plotspath+'compare_stars_dm.pdf',bbox_inches='tight')
+'''

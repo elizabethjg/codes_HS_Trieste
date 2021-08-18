@@ -12,6 +12,7 @@ cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
+matplotlib.rcParams.update({'font.size': 14})
 plt.rcParams['xtick.top'] = True
 plt.rcParams['xtick.bottom'] = True
 plt.rcParams['ytick.left'] = True
@@ -20,7 +21,7 @@ plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
 
-matplotlib.rcParams.update({'font.size': 13})
+
 
 
 path = '../catalog/nuevosdats/'

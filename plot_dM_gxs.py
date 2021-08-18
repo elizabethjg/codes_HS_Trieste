@@ -1,15 +1,9 @@
 import sys
 import time
 import numpy as np
-from astropy.io import fits
-from astropy.cosmology import LambdaCDM
-from scipy import stats
 from pylab import *
 from main import *
-from scipy.stats import pearsonr
 import os
-import pandas as pd
-cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -23,7 +17,7 @@ plt.rcParams['ytick.right'] = True
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
-matplotlib.rcParams.update({'font.size': 11})
+matplotlib.rcParams.update({'font.size': 13})
 
 
 
@@ -55,6 +49,7 @@ DM500  = DarkMatter(500)
 DM200  = DarkMatter(200)
 
 r200 = Random()
+r200_ce = Random(half=True)
 r1000 = Random(1000)
 r500 = Random(500)
 
@@ -79,6 +74,19 @@ mcp    = np.array((mc.tolist())*3)
 me     = gx_e.N > 9
 mep    = np.array((me.tolist())*3)
 
+N200 = np.array((gx200.N.tolist())*3)
+N500 = np.array((gx500.N.tolist())*3)
+N1000 = np.array((gx1000.N.tolist())*3)
+
+ratio200 = gx200.n/N200
+ratio500 = gx500.n/N500
+ratio1000 = gx1000.n/N1000
+
+plt.hist(ratio200,np.linspace(1,5,30),histtype='step',color='teal',lw=2,alpha=0.5)
+plt.hist(ratio500,np.linspace(1,5,30),histtype='step',color='C1',lw=2,alpha=0.5)
+plt.hist(ratio1000,np.linspace(1,5,30),histtype='step',color='C3',lw=2,alpha=0.5)
+
+
 cgall = CorrelR(Galaxias,DarkMatter)
 cgce = CorrelR(DarkMatter,DarkMatter)
 
@@ -93,10 +101,9 @@ tgxep  = cgce.t2D_gxe
 
 # 2D RESULTS
 
-f, ax = plt.subplots(2,2, figsize=(9.4,6))
-# f.subplots_adjust(hspace=0,wspace=0)
+f, ax = plt.subplots(2,2, figsize=(9.4,6),sharex=True)
+f.subplots_adjust(hspace=0,wspace=0)
 
-ax = ax.T
 
 plot_fig(np.log10(gx1000.n),gx1000.q/DM1000.q,
          np.log10(r1000.n),r1000.q50/DM1000.q,r1000.q75/DM1000.q,
@@ -130,27 +137,24 @@ plot_fig(np.log10(gx200.n),tgxp.T[-1],
 # ----------------
 
 plot_fig(np.log10(gx_c.n),gx_c.q/DM200.q,
-         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
-         r200.q25/DM200.q,5,ax[0,1],mcp,'-',ly='concentrated')
+         np.log10(r200_ce.n),r200_ce.q50/DM200.q,r200_ce.q75/DM200.q,
+         r200_ce.q25/DM200.q,5,ax[0,1],mcp,'-',ly='concentrated')
 
 plot_fig(np.log10(gx_e.n),gx_e.q/DM200.q,
-         np.log10(r200.n),r200.q50/DM200.q,r200.q75/DM200.q,
-         r200.q25/DM200.q,5,ax[0,1],mep,'--',ly='extended')         
+         np.log10(r200_ce.n),r200_ce.q50/DM200.q,r200.q75/DM200.q,
+         r200_ce.q25/DM200.q,5,ax[0,1],mep,'--',ly='extended')         
 
 ax[0,1].legend(frameon=False)         
          
 plot_fig(np.log10(gx_c.n),tgxcp.T[-1],
-         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
-         r200.t2Ddm25,5,ax[1,1],mcp,'-',ly='concentrated')
+         np.log10(r200_ce.n),r200_ce.t2Ddm50,r200_ce.t2Ddm75,
+         r200_ce.t2Ddm25,5,ax[1,1],mcp,'-',ly='concentrated')
 
 plot_fig(np.log10(gx_e.n),tgxep.T[-1],
-         np.log10(r200.n),r200.t2Ddm50,r200.t2Ddm75,
-         r200.t2Ddm25,5,ax[1,1],mep,'--',ly='extended')         
+         np.log10(r200_ce.n),r200_ce.t2Ddm50,r200_ce.t2Ddm75,
+         r200_ce.t2Ddm25,5,ax[1,1],mep,'--',ly='extended')         
 
 ax[0,0].set_xlim([1.0,2.8])
-ax[1,0].set_xlim([1.0,2.8])
-ax[0,1].set_xlim([1.0,2.8])
-ax[1,1].set_xlim([1.0,2.8])
 
 
 ax[1,1].set_ylim([0.,50])
@@ -164,22 +168,18 @@ ax[1,1].set_yticklabels([])
 
 ax[1,0].set_xlabel('$\log(N)$')
 ax[1,1].set_xlabel('$\log(N)$')
-ax[0,0].set_xlabel('$\log(N)$')
-ax[0,1].set_xlabel('$\log(N)$')
 
 ax[0,0].set_ylabel('$q/q_{DM}$')
-ax[1,0].set_ylabel(r'$\theta^*$')
-
-ax[0,1].set_ylabel('$q/q_{DM}$')
-ax[1,1].set_ylabel(r'$\theta^*$')
+ax[1,0].set_ylabel(r'$\theta$')
 
 f.savefig(plotspath+'shape_galaxies_2D.pdf',bbox_inches='tight')
 
 # 3D RESULTS
 
-f, ax = plt.subplots(2,3, figsize=(14,6))
-# f.subplots_adjust(hspace=0,wspace=0)
-ax = ax.T
+f, ax = plt.subplots(3,2, figsize=(9.4,9),sharex=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+
 
 
 plot_fig(np.log10(gx1000.N),gx1000.T/DM1000.T,
@@ -226,31 +226,31 @@ plot_fig(np.log10(gx200.N),tgx.T[-1],
 # ----------------
 
 plot_fig(np.log10(gx_c.N),gx_c.T/DM200.T,
-         np.log10(r200.N),r200.T50/DM200.T,r200.T75/DM200.T,
-         r200.T25/DM200.T,5,ax[0,1],mc,'-')
+         np.log10(r200_ce.N),r200_ce.T50/DM200.T,r200_ce.T75/DM200.T,
+         r200_ce.T25/DM200.T,5,ax[0,1],mc,'-')
 
 plot_fig(np.log10(gx_e.N),gx_e.T/DM200.T,
-         np.log10(r200.N),r200.T50/DM200.T,r200.T75/DM200.T,
-         r200.T25/DM200.T,5,ax[0,1],me,'--')
+         np.log10(r200_ce.N),r200_ce.T50/DM200.T,r200_ce.T75/DM200.T,
+         r200_ce.T25/DM200.T,5,ax[0,1],me,'--')
 
          
 plot_fig(np.log10(gx_c.N),gx_c.S/DM200.S,
-         np.log10(r200.N),r200.S50/DM200.S,r200.S75/DM200.S,
-         r200.S25/DM200.S,5,ax[1,1],mc,'-',ly='concentrated')
+         np.log10(r200_ce.N),r200_ce.S50/DM200.S,r200_ce.S75/DM200.S,
+         r200_ce.S25/DM200.S,5,ax[1,1],mc,'-',ly='concentrated')
 
 plot_fig(np.log10(gx_e.N),gx_e.S/DM200.S,
-         np.log10(r200.N),r200.S50/DM200.S,r200.S75/DM200.S,
-         r200.S25/DM200.S,5,ax[1,1],me,'--',ly='extended')       
+         np.log10(r200_ce.N),r200_ce.S50/DM200.S,r200_ce.S75/DM200.S,
+         r200_ce.S25/DM200.S,5,ax[1,1],me,'--',ly='extended')       
 
 ax[1,1].legend(frameon=False)         
          
 plot_fig(np.log10(gx_c.N),tgxc.T[-1],
-         np.log10(r200.N),r200.tdm50,r200.tdm75,
-         r200.tdm25,5,ax[2,1],mc,'-',ly='concentrated')
+         np.log10(r200_ce.N),r200_ce.tdm50,r200_ce.tdm75,
+         r200_ce.tdm25,5,ax[2,1],mc,'-',ly='concentrated')
 
 plot_fig(np.log10(gx_e.N),tgxe.T[-1],
-         np.log10(r200.N),r200.tdm50,r200.tdm75,
-         r200.tdm25,5,ax[2,1],me,'--',ly='extended')
+         np.log10(r200_ce.N),r200_ce.tdm50,r200_ce.tdm75,
+         r200_ce.tdm25,5,ax[2,1],me,'--',ly='extended')
       
 
 ax[0,0].set_xlim([1.0,2.8])
@@ -272,24 +272,17 @@ ax[1,0].set_ylim([0.35,1.1])
 ax[1,1].set_ylim([0.35,1.1])
 
 
-# ax[0,1].set_yticklabels([])
-# ax[1,1].set_yticklabels([])
-# ax[2,1].set_yticklabels([])
+ax[0,1].set_yticklabels([])
+ax[1,1].set_yticklabels([])
+ax[2,1].set_yticklabels([])
 
 
 ax[1,0].set_xlabel('$\log(N)$')
 ax[1,1].set_xlabel('$\log(N)$')
 
-ax[0,0].set_xlabel('$\log(N)$')
-ax[0,1].set_xlabel('$\log(N)$')
-
 ax[0,0].set_ylabel('$T/T_{DM}$')
 ax[1,0].set_ylabel('$S/S_{DM}$')
-ax[2,0].set_ylabel(r'$\theta$')
-
-ax[0,1].set_ylabel('$T/T_{DM}$')
-ax[1,1].set_ylabel('$S/S_{DM}$')
-ax[2,1].set_ylabel(r'$\theta$')
+ax[2,0].set_ylabel(r'$\theta^{3D}$')
 
 ax[2,0].set_xlabel('$\log(N)$')
 ax[2,1].set_xlabel('$\log(N)$')

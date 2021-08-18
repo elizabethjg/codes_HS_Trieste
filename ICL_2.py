@@ -1,13 +1,11 @@
 import sys
 import time
 import numpy as np
-from astropy.io import fits
-from astropy.cosmology import LambdaCDM
-from scipy import stats
 from pylab import *
 from main import *
+import os
 
-cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
+
 from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -22,34 +20,36 @@ plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
 
-matplotlib.rcParams.update({'font.size': 14})
+matplotlib.rcParams.update({'font.size': 13})
 
+plotspath = '../final_plots/'
 
-
-plotspath = '../plots_ICL/'
 
 C = Clusters()
 ICL_ = ICL()
 DM = ICL('dm')
 
 DM1000 = DarkMatter(1000)
-DM500  = DarkMatter(500)
-DM200  = DarkMatter(200)
-DM30  = DarkMatter(30)
-DM50  = DarkMatter(50)
-DM100  = DarkMatter(100)
+DM500 = DarkMatter(500)
+DM200 = DarkMatter(200)
+DM100 = DarkMatter(100)
+DM50 = DarkMatter(50)
+DM30 = DarkMatter(30)
 
-st200  = Stars(200)
+H1000 = DarkMatter(1000,False)
+
+
 st1000 = Stars(1000)
 st500  = Stars(500)
-st30   = Stars(30)
-st50   = Stars(50)
+st200  = Stars(200)
 st100  = Stars(100)
+st50   = Stars(50)
+st30   = Stars(30)
 
-lt =  np.array((C.ltime.tolist())*3) 
+lt =  C.ltimep
 
 m = (C.sub == 0)
-micl = (m.tolist()*3)
+micl = np.array(m.tolist()*3)
 
 mo = C.mo2d_gap[micl]
 mn = C.mn2d_gap[micl]
@@ -63,213 +63,88 @@ qbcg_dm = DM.qbcg
 mbdm = DM.Rbcg > 0.
 mb   = ICL_.Rbcg > 0.
 
-t_dm = cosangle(DM.a2Dicl,DM1000.a2D[micl])[1]
-t_dm_bcg = cosangle(DM.a2Dbcg,DM1000.a2D[micl])[1]
-
-t_st = cosangle(ICL_.a2Dicl,st1000.a2D[micl])[1]
-t_st_bcg = cosangle(ICL_.a2Dbcg,st100.a2D[micl])[1]
+r200  = C.Rp[micl,-1]
+r1000  = C.Rp[micl,-3]
 
 
-f, ax = plt.subplots(2,2, figsize=(10,10), sharex=True, sharey=True)
+t_st = cosangle(st1000.a2D[micl],ICL_.a2Dicl)[1]
+t_dmp = cosangle(DM.a2Dicl,ICL_.a2Dicl)[1]
+t_dmp_bcg = cosangle(DM.a2Dbcg,ICL_.a2Dicl)[1]
+
+t_dmdm = cosangle(DM.a2Dicl,DM1000.a2D[micl])[1]
+t_dm = cosangle(ICL_.a2Dicl,DM1000.a2D[micl])[1]
+t_dm_bcg = cosangle(ICL_.a2Dicl,DM100.a2D[micl])[1]
+t_dmh = cosangle(DM.a2Dicl,H1000.a2D[micl])[1]
+
+t_bcg = cosangle(ICL_.a2Dicl,st100.a2D[micl])[1]
+t_bcg_dm = cosangle(DM.a2Dicl,DM100.a2D[micl])[1]
+
+rlim = np.zeros(micl.sum())
+rlim_dm = np.zeros(micl.sum())
+
+for j in range(micl.sum()):
+    rlim[j]    = ICL_.a[j][-1]/r1000[j]
+    rlim_dm[j] = DM.a[j][-1]/r1000[j]
+
+f, ax = plt.subplots(2,1, figsize=(5.5,8), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
-ax2 = ax.flatten()
+plot_fig(lt[micl],qdm/DM1000.q[micl],4,color='k',ax=ax[0],label = 'DM Isocontour - DM Inertial')
+# plot_fig(lt[micl],qdm/H1000.q[micl],5,color='teal',ax=ax[0],label = 'DM Iscontour - H Inertial')
+plot_fig(lt[micl],qicl/st1000.q[micl],4,color='C1',ax=ax[0],label = 'ICL - Stars Inertial')
+plot_fig(lt[micl][mbdm],(qbcg_dm/DM100.q[micl])[mbdm],4,color='k',ax=ax[0],style='--',label = 'DM Isocontour - DM Inertial')
+plot_fig(lt[micl][mb],(qbcg/st100.q[micl])[mb],4,color='C1',style='--',ax=ax[0],label = 'ICL - Stars Inertial')
+ax[0].set_ylabel(r'$q_{iso}/q_{ine}$')
 
-ax[0,0].plot(DM100.q[micl][mn*mbdm],qbcg_dm[mn*mbdm],'C0.')
-ax[0,0].plot(DM100.q[micl][mo*mbdm],qbcg_dm[mo*mbdm],'.',c='sienna')
-ax[0,1].plot(DM1000.q[micl][mn],qdm[mn],'C0.')
-ax[0,1].plot(DM1000.q[micl][mo],qdm[mo],'.',c='sienna')
 
-ax[1,0].plot(st100.q[micl][mn*mb],qbcg[mn*mb],'C0*')
-ax[1,0].plot(st100.q[micl][mo*mb],qbcg[mo*mb],'*',c='sienna')
-ax[1,1].plot(st1000.q[micl][mn],qicl[mn],'C0*')
-ax[1,1].plot(st1000.q[micl][mo],qicl[mo],'*',c='sienna')
+plot_fig(lt[micl],t_dmdm,4,color='k',ax=ax[1],label = 'DM')
+# plot_fig(lt[micl],t_dmh,5,color='teal',ax=ax[1],label = 'DM Iscontour - H Inertial')
+plot_fig(lt[micl],t_st,4,color='C1',ax=ax[1],label = 'Stellar')
+plot_fig(lt[micl],t_dmdm,4,color='k',ax=ax[1],label = 'ICM')
+plot_fig(lt[micl][mbdm],t_bcg_dm[mbdm],4,color='k',ax=ax[1],style='--',label = 'BCG')
+plot_fig(lt[micl][mb],t_bcg[mb],4,color='C1',ax=ax[1],style='--')
+ax[1].set_xlabel(r'Formation time [Gyr]')
+ax[1].set_ylabel(r'$\theta$')
+ax[1].legend(loc=1,frameon=False,fontsize = 12,ncol=2)
 
-for j in range(len(ax2)):
-    ax2[j].plot([0.4,1.0],[0.4,1.0],'C7--')
-    
-ax[1,0].set_xlabel('$q (R < 0.1R_{500})$')
-ax[1,1].set_xlabel('$q (R < R_{1000})$')
+plt.savefig(plotspath+'comparison_iso_iner_time.pdf',bbox_inches='tight')
 
-ax[0,0].set_ylabel('$q^*_{DM} $')
-ax[1,0].set_ylabel('$q^*\star$')
-
-plt.savefig(plotspath+'q_icl_scatter_gap.pdf',bbox_inches='tight')
-
-f, ax = plt.subplots(2,2, figsize=(10,10), sharex=True, sharey=True)
+f, ax = plt.subplots(2,1, figsize=(5.5,8), sharex=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
-ax2 = ax.flatten()
-
-ax[0,0].hist((DM100.q[micl][mn*mbdm]/qbcg_dm[mn*mbdm]),histtype='step',color='C0',density=True)
-ax[0,0].hist((DM100.q[micl][mo*mbdm]/qbcg_dm[mo*mbdm]),histtype='step',color='peru',density=True)
-ax[0,1].hist((DM1000.q[micl][mn]/qdm[mn]),histtype='step',color='C0',density=True)
-ax[0,1].hist((DM1000.q[micl][mo]/qdm[mo]),histtype='step',color='peru',density=True)
-
-ax[0,0].plot(np.mean(DM100.q[micl][mn*mbdm]/qbcg_dm[mn*mbdm]),4.1,'C0o')
-ax[0,0].plot(np.mean(DM100.q[micl][mo*mbdm]/qbcg_dm[mo*mbdm]),4,'o',c='sienna')
-ax[0,1].plot(np.mean(DM1000.q[micl][mn]/qdm[mn]),4.1,'C0o')
-ax[0,1].plot(np.mean(DM1000.q[micl][mo]/qdm[mo]),4,'o',c='sienna')
-
-ax[0,0].errorbar(np.mean(DM100.q[micl][mn*mbdm]/qbcg_dm[mn*mbdm]),4.1,xerr=np.std(DM100.q[micl][mn*mbdm]/qbcg_dm[mn*mbdm]),ecolor='C0',fmt='none')
-ax[0,0].errorbar(np.mean(DM100.q[micl][mo*mbdm]/qbcg_dm[mo*mbdm]),4,xerr=np.std(DM100.q[micl][mo*mbdm]/qbcg_dm[mo*mbdm]),ecolor='peru',fmt='none')
-ax[0,1].errorbar(np.mean(DM1000.q[micl][mn]/qdm[mn]),4.1,xerr=np.std(DM1000.q[micl][mn]/qdm[mn]),ecolor='C0',fmt='none')
-ax[0,1].errorbar(np.mean(DM1000.q[micl][mo]/qdm[mo]),4,xerr=np.std(DM1000.q[micl][mo]/qdm[mo]),ecolor='peru',fmt='none')
+plot_fig(qdm,qdm/DM1000.q[micl],4,color='k',ax=ax[0],label = 'DM Isocontour - DM Inertial')
+plot_fig(qicl[rlim>0.7],(qicl/st1000.q[micl])[rlim>0.7],4,color='C1',ax=ax[0],label = 'ICL - Stars Inertial')
+plot_fig(qbcg_dm[mbdm],(qbcg_dm/DM100.q[micl])[mbdm],4,color='k',ax=ax[0],style='--',label = 'DM Isocontour - DM Inertial')
+plot_fig(qbcg[mb],(qbcg/st100.q[micl])[mb],4,color='C1',style='--',ax=ax[0],label = 'ICL - Stars Inertial')
+ax[0].set_ylabel(r'$q_{iso}/q_{ine}$')
 
 
-ax[1,0].hist((st100.q[micl][mn*mb]/qbcg[mn*mb]),histtype='step',color='C0',density=True)
-ax[1,0].hist((st100.q[micl][mo*mb]/qbcg[mo*mb]),histtype='step',color='peru',density=True)
-ax[1,1].hist((st1000.q[micl][mn]/qicl[mn]),histtype='step',color='C0',density=True)
-ax[1,1].hist((st1000.q[micl][mo]/qicl[mo]),histtype='step',color='peru',density=True)
+plot_fig(qdm,t_dmdm,4,color='k',ax=ax[1],label = 'DM')
+plot_fig(qicl[rlim>0.7],t_st[rlim>0.7],4,color='C1',ax=ax[1],label = 'Stellar')
+plot_fig(qdm,t_dmdm,4,color='k',ax=ax[1],label = 'ICM')
+plot_fig(qbcg_dm[mbdm],t_bcg_dm[mbdm],4,color='k',ax=ax[1],style='--',label = 'BCG')
+plot_fig(qbcg[mb],t_bcg[mb],4,color='C1',ax=ax[1],style='--')
+ax[1].set_xlabel(r'$q_{iso}$')
+ax[1].set_ylabel(r'$\theta^{iso}_{ine}$')
+ax[1].legend(loc=2,frameon=False,fontsize = 12,ncol=2)
 
-ax[1,0].plot(np.mean(st100.q[micl][mn*mb]/qbcg[mn*mb]),4.1,'C0o')
-ax[1,0].plot(np.mean(st100.q[micl][mo*mb]/qbcg[mo*mb]),4,'o',c='sienna')
-ax[1,1].plot(np.mean(st1000.q[micl][mn]/qicl[mn]),4.1,'C0o')
-ax[1,1].plot(np.mean(st1000.q[micl][mo]/qicl[mo]),4,'o',c='sienna')
-
-ax[1,0].errorbar(np.mean(st100.q[micl][mn*mb]/qbcg[mn*mb]),4.1,xerr=np.std(st100.q[micl][mn*mb]/qbcg[mn*mb]),ecolor='C0',fmt='none')
-ax[1,0].errorbar(np.mean(st100.q[micl][mo*mb]/qbcg[mo*mb]),4,xerr=np.std(st100.q[micl][mo*mb]/qbcg[mo*mb]),ecolor='peru',fmt='none')
-ax[1,1].errorbar(np.mean(st1000.q[micl][mn]/qicl[mn]),4.1,xerr=np.std(st1000.q[micl][mn]/qicl[mn]),ecolor='C0',fmt='none')
-ax[1,1].errorbar(np.mean(st1000.q[micl][mo]/qicl[mo]),4,xerr=np.std(st1000.q[micl][mo]/qicl[mo]),ecolor='peru',fmt='none')
-
-ax[0,0].text(0.8,3,'DM')
-ax[0,1].text(0.8,3,'DM')
-ax[1,0].text(0.8,3,'Stars')
-ax[1,1].text(0.8,3,'Stars')
-    
-ax[0,0].set_ylabel('$n$')
-ax[1,0].set_ylabel('$n$')
-
-ax[1,0].set_xlabel('$q/q^* (R < 0.1R_{500})$')
-ax[1,1].set_xlabel('$q/q^*(R < R_{1000})$')
-
-plt.savefig(plotspath+'q_dist_scatter_gap.pdf',bbox_inches='tight')
+plt.savefig(plotspath+'comparison_iso_iner.pdf',bbox_inches='tight')
 
 
-##### Alignment
 
-f, ax = plt.subplots(2,2, figsize=(10,10), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-ax2 = ax.flatten()
-
-ax[0,0].hist(t_dm_bcg[mbdm*mn],histtype='step',color='C0',density=True)
-ax[0,0].hist(t_dm_bcg[mbdm*mo],histtype='step',color='peru',density=True)
-ax[0,1].hist(t_dm[mn],histtype='step',color='C0',density=True)
-ax[0,1].hist(t_dm[mo],histtype='step',color='peru',density=True)
-
-ax[0,0].plot(np.mean(t_dm_bcg[mbdm*mn]),0.13,'C0o')
-ax[0,0].plot(np.mean(t_dm_bcg[mbdm*mo]),0.12,'o',c='sienna')
-ax[0,1].plot(np.mean(t_dm[mn]),0.13,'C0o')
-ax[0,1].plot(np.mean(t_dm[mo]),0.12,'o',c='sienna')
-
-ax[0,0].errorbar(np.mean(t_dm_bcg[mbdm*mn]),0.13,xerr=np.std(t_dm_bcg[mbdm*mn]),ecolor='C0',fmt='none')
-ax[0,0].errorbar(np.mean(t_dm_bcg[mbdm*mo]),0.12,xerr=np.std(t_dm_bcg[mbdm*mo]),ecolor='peru',fmt='none')
-ax[0,1].errorbar(np.mean(t_dm[mn]),0.13,xerr=np.std(t_dm[mn]),ecolor='C0',fmt='none')
-ax[0,1].errorbar(np.mean(t_dm[mo]),0.12,xerr=np.std(t_dm[mo]),ecolor='peru',fmt='none')
+# plt.figure(figsize=(5.5,4))
+# plot_fig(lt[micl],rlim,5,color='C1',label = 'ICL')
+# plot_fig(lt[micl],rlim_dm,5,color='teal',label = 'DM isodensity')
+# plt.plot(lt[micl],rlim,'.',color='C1')
+# plt.plot(lt[micl],rlim_dm,'.',color='teal')
+# plt.xlabel(r'Formation time [Gyr]')
+# plt.hist(rlim,10,histtype='step',color='C1',lw=2,label='ICL')
+# plt.hist(rlim_dm,10,histtype='step',color='teal',lw=2,label = 'DM isodensity')
+# plt.axvline(np.median(rlim),color='C1')
+# plt.axvline(np.median(rlim_dm),color='teal')
+# plt.legend(loc=1,frameon=False,fontsize = 12)
+# plt.ylabel('$N$')
+# plt.xlabel('$R_{MAX}/R_{1000}$')
+# plt.savefig(plotspath+'RMAX_ICL.pdf',bbox_inches='tight')
 
 
-ax[1,0].hist((t_st_bcg[mb*mn]),histtype='step',color='C0',density=True)
-ax[1,0].hist((t_st_bcg[mb*mo]),histtype='step',color='peru',density=True)
-ax[1,1].hist((t_st[mn]),histtype='step',color='C0',density=True)
-ax[1,1].hist((t_st[mo]),histtype='step',color='peru',density=True)
-
-ax[1,0].plot(np.mean(t_st_bcg[mb*mn]),0.13,'C0o')
-ax[1,0].plot(np.mean(t_st_bcg[mb*mo]),0.12,'o',c='sienna')
-ax[1,1].plot(np.mean(t_st[mn]),0.13,'C0o')
-ax[1,1].plot(np.mean(t_st[mo]),0.12,'o',c='sienna')
-
-ax[1,0].errorbar(np.mean(t_st_bcg[mb*mn]),0.13,xerr=np.std(t_st_bcg[mb*mn]),ecolor='C0',fmt='none')
-ax[1,0].errorbar(np.mean(t_st_bcg[mb*mo]),0.12,xerr=np.std(t_st_bcg[mb*mo]),ecolor='peru',fmt='none')
-ax[1,1].errorbar(np.mean(t_st[mn]),0.13,xerr=np.std(t_st[mn]),ecolor='C0',fmt='none')
-ax[1,1].errorbar(np.mean(t_st[mo]),0.12,xerr=np.std(t_st[mo]),ecolor='peru',fmt='none')
-
-ax[0,0].text(60,0.1,'DM')
-ax[0,1].text(60,0.1,'DM')
-ax[1,0].text(60,0.1,'Stars')
-ax[1,1].text(60,0.1,'Stars')
-    
-ax[0,0].set_ylabel('$n$')
-ax[1,0].set_ylabel('$n$')
-
-ax[1,0].set_xlabel(r'$\theta (R < 0.1R_{500})$')
-ax[1,1].set_xlabel(r'$\theta (R < R_{1000})$')
-
-plt.savefig(plotspath+'theta_dist_scatter_gap.pdf',bbox_inches='tight')
-
-
-#####################
-
-f, ax = plt.subplots(2,1, figsize=(7,8), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-plot_fig(lt[micl][mbdm],DM100.q[micl][mbdm]/qbcg_dm[mbdm],5,ax=ax[0],color='k')
-plot_fig(lt[micl][mb],st100.q[micl][mb]/qbcg[mb],5,ax=ax[0],color='C9')
-
-plot_fig(lt[micl],DM1000.q[micl]/qdm,5,ax=ax[1],color='k')
-plot_fig(lt[micl],st1000.q[micl]/qicl,5,ax=ax[1],color='C9')
-    
-ax[1].set_xlabel('look-back time [Gyr]')
-
-
-ax[0].set_ylabel('$q/q^* (R < 0.1R_{500})$')
-ax[1].set_ylabel('$q/q^*(R < R_{1000})$')
-
-plt.savefig(plotspath+'q_icl_time.pdf',bbox_inches='tight')
-
-#####################
-
-f, ax = plt.subplots(2,1, figsize=(7,8), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-plot_fig(lt[micl][mbdm],t_dm_bcg[mbdm],5,ax=ax[0],color='k')
-plot_fig(lt[micl][mb],t_st_bcg[mb],5,ax=ax[0],color='C9')
-
-plot_fig(lt[micl],t_dm,5,ax=ax[1],color='k')
-plot_fig(lt[micl],t_st,5,ax=ax[1],color='C9')
-    
-ax[1].set_xlabel('look-back time [Gyr]')
-
-
-ax[0].set_ylabel(r'$\theta (R < 0.1R_{500})$')
-ax[1].set_ylabel(r'$\theta (R < R_{1000})$')
-
-plt.savefig(plotspath+'align_icl_time.pdf',bbox_inches='tight')
-
-#####################
-
-f, ax = plt.subplots(2,1, figsize=(7,8), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-plot_fig(lt[micl][mbdm],DM100.q[micl][mbdm]/qbcg_dm[mbdm],5,ax=ax[0],color='k')
-plot_fig(lt[micl][mb],st100.q[micl][mb]/qbcg[mb],5,ax=ax[0],color='C9')
-
-plot_fig(lt[micl],DM1000.q[micl]/qdm,5,ax=ax[1],color='k')
-plot_fig(lt[micl],st1000.q[micl]/qicl,5,ax=ax[1],color='C9')
-    
-ax[1].set_xlabel('look-back time [Gyr]')
-
-
-ax[0].set_ylabel('$q/q^* (R < 0.1R_{500})$')
-ax[1].set_ylabel('$q/q^*(R < R_{1000})$')
-
-plt.savefig(plotspath+'q_icl_time.pdf',bbox_inches='tight')
-
-#####################
-
-f, ax = plt.subplots(2,1, figsize=(7,8), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-plot_fig(lt[micl][mbdm],t_dm_bcg[mbdm],5,ax=ax[0],color='k')
-plot_fig(lt[micl][mb],t_st_bcg[mb],5,ax=ax[0],color='C9')
-
-plot_fig(lt[micl],t_dm,5,ax=ax[1],color='k')
-plot_fig(lt[micl],t_st,5,ax=ax[1],color='C9')
-    
-ax[1].set_xlabel('look-back time [Gyr]')
-
-
-ax[0].set_ylabel(r'$\theta (R < 0.1R_{500})$')
-ax[1].set_ylabel(r'$\theta (R < R_{1000})$')
-
-plt.savefig(plotspath+'align_icl_time.pdf',bbox_inches='tight')

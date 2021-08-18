@@ -27,7 +27,7 @@ plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
 
-matplotlib.rcParams.update({'font.size': 14})
+matplotlib.rcParams.update({'font.size': 13})
 
 cbcg = 'teal'
 
@@ -457,6 +457,9 @@ gxc = Galaxias('concentradas')
 
 m = (C.sub == 0)
 
+mc     = gxc.N > 9
+mcp    = np.array((mc.tolist())*3)
+
 
 # ltimep = C.ltimep
 # mt     = ltimep > 0.
@@ -551,7 +554,7 @@ Ricl_Udv  = np.median(ICL_.Ricl[mmas[micl2]][(C.mn2d_dv)[micl]])
 
 
 ####### PLOT
-f, ax = plt.subplots(3,3, figsize=(14,12), sharey=True)
+f, ax = plt.subplots(3,3, figsize=(12,10), sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
 ax[0,0].text(1.08,1.,'c')

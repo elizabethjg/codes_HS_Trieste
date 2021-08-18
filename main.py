@@ -144,8 +144,8 @@ def newold(indicator = 'gap',gxs = False):
     mnew2D = mgap2D
     
     if 'gap' in indicator:
-        mold = gap < 0.2
-        mold2D = gap2D < 0.2
+        mold = gap <= 0.22
+        mold2D = gap2D <= 0.22
         
         mnew = ~mold
         mnew2D = ~mold2D
@@ -163,9 +163,9 @@ def newold(indicator = 'gap',gxs = False):
 def plot_fig(x,y,nbins,ax=plt,color = 'sienna', style = '',label=''):
                 
         X,q50,q25,q75,mz = binned(x,y,nbins)
-        ax.plot(X,q50,color+style,label=label)
-        ax.plot(X,q75,color+style,alpha=0.2)
-        ax.plot(X,q25,color+style,alpha=0.2)
+        ax.plot(X,q50,style,color=color,label=label)
+        ax.plot(X,q75,style,color=color,alpha=0.2)
+        ax.plot(X,q25,style,color=color,alpha=0.2)
         ax.fill_between(X,q75,q25,color = color,alpha=0.1)
 
 
@@ -288,10 +288,12 @@ class Galaxias(Shape):
 
 class Random():
 
-    def __init__(self, radio = 200):
+    def __init__(self, radio = 200, half = False):
         
-        
-        gal = np.loadtxt(path+'nuevosdats/dmrand_nounb_091.dat').T
+        if half:
+            gal = np.loadtxt(path+'dmrand_halfnglxs_091.dat').T
+        else:
+            gal = np.loadtxt(path+'dmrand_091.dat').T
         
         if radio == 1000:
             ind = 2
@@ -441,10 +443,11 @@ class Clusters:
         
 class ICL:
     
-    def __init__(self,trazer='icl'):
+    def __init__(self,trazer='icl',cutmax=False):
         
         
-        pathicl = '../catalog/tablas_'+trazer+'/'
+        patht = '../catalog/tablas_'+trazer+'/'
+        pathicl    = '../catalog/tablas_icl/'
                
         D    = np.array([])
         proj = np.array([])
@@ -454,6 +457,7 @@ class ICL:
         PA   = []
         ePA  = []
 
+        pbcg  = []
         A0    = []
         q0    = []
         eq0   = []
@@ -498,11 +502,16 @@ class ICL:
                 
                 ## icl data
                 
-                tab = np.loadtxt(pathicl+'d'+str(int(j))+'_'+p[i]+'.dat',dtype='str').T
+                tab = np.loadtxt(patht+'d'+str(int(j))+'_'+p[i]+'.dat',dtype='str').T
+                tab_icl = np.loadtxt(pathicl+'d'+str(int(j))+'_'+p[i]+'.dat',dtype='str').T
             
                 mindef = ~(tab[-5] == 'INDEF')
                 tab[-5][~mindef] = '99.'
                 musar  = (tab[-5].astype(float) < 90.)
+
+                mindef_icl = ~(tab_icl[-5] == 'INDEF')
+                tab_icl[-5][~mindef_icl] = '99.'
+                musar_icl  = (tab_icl[-5].astype(float) < 90.)
             
                 D    = np.append(D,j)
                 proj = np.append(proj,i)
@@ -513,7 +522,11 @@ class ICL:
                     a, i0, e, ee, pa, epa, x0, ex0, y0, ey0 = tab[:,musar].astype(float)                
                                     
                 
+                aicl = tab_icl[0,musar_icl].astype(float)                
+
+                
                 r = (1+a)*20.
+                aicl = (1+aicl[-1])*20.
                 A   = A + [r]
                 PA  = PA + [pa]
                 ePA = ePA + [epa]
@@ -526,8 +539,16 @@ class ICL:
                 q0   = q0 + [1.-e[-1]]
                 eq0 = eq0 + [ee[-1]]
                 
-                micl = (r > r100[j-1])
+                if cutmax:
+                    micl = (r <= aicl)#(r > r100[j-1])
+                else:
+                    micl = (r <= r1000[j-1])#(r > r100[j-1])
                 mbcg = r < r100[j-1]
+                # try:
+                    # pbcg = pbcg + [max(a[mbcg])]
+                    # print(i,j,max(a[mbcg]))
+                # except:
+                    # print('no bcg')
                 
                 if any(pa > 80.):
                     pa[pa < 0.] = 180. + pa[pa < 0.]
